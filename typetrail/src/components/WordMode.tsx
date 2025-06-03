@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { db } from '../db'
 import styles from './WordMode.module.css'
 
@@ -183,7 +183,7 @@ export default function WordMode() {
                 correct: correctCount,
                 wrong: wrongCount,
                 streak,
-            }).catch(error => {
+            }).catch((error: Error) => {
                 console.error("Failed to save stats:", error);
             });
         }

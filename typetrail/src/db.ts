@@ -1,4 +1,4 @@
-import Dexie from 'dexie'
+import Dexie, { type Table } from 'dexie'
 
 export interface Stat {
 	id?: number
@@ -11,7 +11,7 @@ export interface Stat {
 
 export interface Setting {
 	key: string
-	value: any
+	value: unknown
 }
 
 export interface WordItem {
@@ -24,11 +24,20 @@ export interface SentenceItem {
 	sentence: string
 
 }
-export const db = new Dexie('TypeTrailDB')
+
+export interface TypeTrailDB extends Dexie {
+	stats: Table<Stat, number>;
+	settings: Table<Setting, string>;
+	wordsList: Table<WordItem, number>;
+	sentencesList: Table<SentenceItem, number>;
+}
+
+export const db = new Dexie('TypeTrailDB') as TypeTrailDB;
 
 db.version(1).stores({
 	stats: '++id,mode,date,correct,wrong,streak',
 	settings: 'key,value',
 	wordsList: '++id,word',
 	sentencesList: '++id,sentence',
-})
+});
+
