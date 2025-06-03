@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { db } from '../db'
 import styles from './WordMode.module.css'
 
@@ -34,6 +34,7 @@ export default function WordMode() {
     const [isCustomWordModalOpen, setIsCustomWordModalOpen] = useState(false);
     const [customWordInputValue, setCustomWordInputValue] = useState('');
 
+    const inputRef = useRef<HTMLInputElement>(null);
 
     const [correctCount, setCorrectCount] = useState(0)
     const [wrongCount, setWrongCount] = useState(0)
@@ -98,17 +99,81 @@ export default function WordMode() {
     }, []);
 
     useEffect(() => {
-        const handleKeyDown = (event: KeyboardEvent) => {
-            if (event.shiftKey && (event.key === 'S' || event.key === 's')) {
-                event.preventDefault();
-                setIsCustomWordModalOpen(prev => !prev);
+        const handleGlobalKeyDown = (event: KeyboardEvent) => {
+            if (event.key === 'Enter' && !isCustomWordModalOpen) {
+                if (!event.shiftKey && (event.key === 'Enter' || (event.ctrlKey && event.key === 'Enter'))) {
+                    event.preventDefault();
+                    inputRef.current?.focus();
+                }
+            } else if (event.shiftKey) {
+                if (event.key === 'S' || event.key === 's') {
+                    event.preventDefault();
+                    setIsCustomWordModalOpen(prev => !prev);
+                } else if (event.key === 'W' || event.key === 'w') {
+                    if (!isCustomWordModalOpen) {
+                        event.preventDefault();
+                        setMultiWordMode(prev => !prev);
+                    }
+                }
             }
         };
-        document.addEventListener('keydown', handleKeyDown);
+        document.addEventListener('keydown', handleGlobalKeyDown);
         return () => {
-            document.removeEventListener('keydown', handleKeyDown);
+            document.removeEventListener('keydown', handleGlobalKeyDown);
         };
+    }, [isCustomWordModalOpen]);
+
+    const closeCustomWordModal = useCallback(() => {
+        setIsCustomWordModalOpen(false);
     }, []);
+
+    const handleSaveCustomWords = useCallback(() => {
+        const trimmedInput = customWordInputValue.trim();
+        let newPracticeWords: string[] = [];
+
+        if (trimmedInput === '') {
+            newPracticeWords = defaultWords;
+        } else {
+            if (multiWordMode) {
+                newPracticeWords = trimmedInput.split(',').map(w => w.trim()).filter(w => w.length > 0);
+            } else {
+                const singleWord = trimmedInput.split(',')[0].trim();
+                if (singleWord.length > 0) newPracticeWords = [singleWord];
+            }
+        }
+        if (newPracticeWords.length === 0) {
+            newPracticeWords = defaultWords;
+        }
+        setWords(newPracticeWords);
+        closeCustomWordModal();
+    }, [customWordInputValue, multiWordMode, setWords, closeCustomWordModal]);
+
+    useEffect(() => {
+        if (isCustomWordModalOpen) {
+            const handleModalKeyDown = (event: KeyboardEvent) => {
+                if (event.key === 'Escape') {
+                    event.preventDefault();
+                    closeCustomWordModal();
+                } else if (event.key === 'Enter' && !event.shiftKey && !event.ctrlKey && !event.altKey) {
+                    if (event.target instanceof HTMLTextAreaElement && event.target.form) {
+                        if (!event.shiftKey) {
+                            event.preventDefault();
+                            handleSaveCustomWords();
+                        }
+                    } else {
+                        event.preventDefault();
+                        handleSaveCustomWords();
+                    }
+                }
+            };
+            document.addEventListener('keydown', handleModalKeyDown);
+            return () => {
+                document.removeEventListener('keydown', handleModalKeyDown);
+            };
+        } else {
+            inputRef.current?.focus();
+        }
+    }, [isCustomWordModalOpen, handleSaveCustomWords, closeCustomWordModal]);
 
     useEffect(() => {
         if (totalAttempts > 0) {
@@ -133,31 +198,6 @@ export default function WordMode() {
             setCustomWordInputValue(isUsingDefaultWords ? '' : (words[0] || ''));
         }
         setIsCustomWordModalOpen(true);
-    };
-
-    const closeCustomWordModal = () => {
-        setIsCustomWordModalOpen(false);
-    };
-
-    const handleSaveCustomWords = () => {
-        const trimmedInput = customWordInputValue.trim();
-        let newPracticeWords: string[] = [];
-
-        if (trimmedInput === '') {
-            newPracticeWords = defaultWords;
-        } else {
-            if (multiWordMode) {
-                newPracticeWords = trimmedInput.split(',').map(w => w.trim()).filter(w => w.length > 0);
-            } else {
-                const singleWord = trimmedInput.split(',')[0].trim();
-                if (singleWord.length > 0) newPracticeWords = [singleWord];
-            }
-        }
-        if (newPracticeWords.length === 0) {
-            newPracticeWords = defaultWords;
-        }
-        setWords(newPracticeWords);
-        closeCustomWordModal();
     };
 
     function renderWordOverlay() {
@@ -194,6 +234,7 @@ export default function WordMode() {
             {renderWordOverlay()}
             
             <input
+                ref={inputRef}
                 className={styles.inputField}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
