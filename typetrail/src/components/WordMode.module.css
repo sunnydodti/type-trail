@@ -1,86 +1,101 @@
-/* WordMode.module.css */
 .wordModeRoot {
     display: flex;
     flex-direction: column;
     align-items: center;
     width: 100%;
-    max-width: 500px; /* Reduced max-width for a more compact feel */
-    margin: 1rem auto; /* Center it, provide some space from App header */
-    padding: 0.75rem; 
-    border: 1px solid #d1d5db; /* Lighter border for light mode */
+    max-width: 500px;
+    margin: 1rem auto;
+    padding: 0.75rem;
+    border: 1px solid #d1d5db;
     border-radius: 8px;
-    background-color: #ffffff; /* White background for the card in light mode */
+    background-color: #ffffff;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     text-align: center;
     box-sizing: border-box;
     transition: background-color 0.3s, color 0.3s, border-color 0.3s;
 }
 
-/* Stats display at the top */
 .statsDisplay {
     display: flex;
-    justify-content: center; 
+    justify-content: center;
     align-items: center;
-    flex-wrap: wrap; 
-    gap: 0.6rem 0.8rem; /* row-gap column-gap, reduced for compactness */
+    flex-wrap: wrap;
+    gap: 0.6rem 0.8rem;
     width: 100%;
-    padding-bottom: 0.6rem; 
-    margin-bottom: 0.8rem; 
-    font-size: 0.8rem; 
-    color: #4b5563; 
-    border-bottom: 1px solid #e5e7eb; 
+    padding-bottom: 0.6rem;
+    margin-bottom: 0.8rem;
+    font-size: 0.8rem;
+    color: #4b5563;
+    border-bottom: 1px solid #e5e7eb;
 }
 
 .statsDisplay span {
     white-space: nowrap;
-    padding: 0.1rem 0.25rem; /* Small padding for each stat item */
+    padding: 0.1rem 0.25rem;
 }
 
-/* Word display */
 .wordOverlay {
     display: flex;
     justify-content: center;
-    font-size: 2rem; /* Reduced font size */
+    font-size: 2rem;
     font-weight: bold;
-    margin: 0.5rem 0 1rem 0; /* Adjusted margin */
-    letter-spacing: 0.05rem; 
-    min-height: 2.5em; /* Ensure space even if word is loading/empty */
-    align-items: center; /* Vertically center text like "Loading word..." */
+    margin: 0.5rem 0 1rem 0;
+    letter-spacing: 0.05rem;
+    min-height: 2.5em;
+    align-items: center;
 }
 
 .letter {
-    padding: 0 2px; /* Reduced padding around letters */
+    padding: 0 2px;
     transition: color 0.2s;
 }
 
 .correct {
-    color: #16a34a; /* Green for correct */
+    color: #16a34a;
 }
 
 .incorrect {
-    color: #dc2626; /* Red for incorrect */
+    color: #dc2626;
 }
 
-/* Input field */
 .inputField {
     width: 100%;
-    max-width: 300px; 
+    max-width: 300px;
     margin-left: auto;
     margin-right: auto;
-    padding: 0.5rem; /* Slightly increased padding for better touch */
-    font-size: 1.1rem; 
-    border: 1px solid #9ca3af; /* Default border */
+    padding: 0.5rem;
+    font-size: 1.1rem;
+    border: 1px solid #9ca3af;
     border-radius: 6px;
     outline: none;
     box-sizing: border-box;
-    text-align: center; 
-    margin-bottom: 1rem; 
+    text-align: center;
+    margin-bottom: 1rem;
     transition: border-color 0.2s, box-shadow 0.2s;
+    position: relative;
+    z-index: 1;
 }
 
 .inputField:focus {
-    border-color: #3b82f6; /* Blue border on focus */
+    border-color: #3b82f6;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+}
+
+.setCustomWordButton {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+    cursor: pointer;
+    background-color: #f0f0f0;
+    color: #333;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+    transition: background-color 0.2s, border-color 0.2s;
+}
+
+.setCustomWordButton:hover {
+    background-color: #e0e0e0;
+    border-color: #bbb;
 }
 
 .inputField:disabled {
@@ -88,18 +103,16 @@
     cursor: not-allowed;
 }
 
-/* Mode toggle button container */
 .modeToggleContainer {
     width: 100%;
     text-align: center;
-    margin-top: 0.5rem; /* Space above the toggle button */
 }
 
 .toggleButton {
-    padding: 0.4rem 0.8rem; 
-    font-size: 0.85rem; 
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
     cursor: pointer;
-    background-color: #e5e7eb; 
+    background-color: #e5e7eb;
     color: #374151;
     border: 1px solid #d1d5db;
     border-radius: 6px;
@@ -111,10 +124,104 @@
     border-color: #9ca3af;
 }
 
-/* Responsive adjustments */
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 1rem;
+    box-sizing: border-box;
+}
+
+.modalContent {
+    background-color: #ffffff;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    width: 100%;
+    max-width: 450px;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    box-sizing: border-box;
+}
+
+.modalContent h3 {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    font-size: 1.25rem;
+    color: #333;
+}
+
+.modalInstructions {
+    font-size: 0.9rem;
+    color: #555;
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+}
+
+.customWordTextarea {
+    width: 100%;
+    padding: 0.5rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    resize: vertical;
+    min-height: 60px;
+}
+
+.customWordTextarea:focus {
+    border-color: #3b82f6;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.modalActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+.modalButton {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: background-color 0.2s, opacity 0.2s;
+}
+
+.modalButtonSave {
+    background-color: #2563eb;
+    color: white;
+}
+.modalButtonSave:hover {
+    background-color: #1d4ed8;
+}
+
+.modalButtonCancel {
+    background-color: #e5e7eb;
+    color: #374151;
+    border: 1px solid #d1d5db;
+}
+.modalButtonCancel:hover {
+    background-color: #d1d5db;
+}
+
+
 @media (max-width: 400px) {
     .statsDisplay {
-        gap: 0.3rem 0.5rem; /* Even more compact gap for very small screens */
+        gap: 0.3rem 0.5rem;
         font-size: 0.75rem;
     }
     .wordOverlay {
@@ -123,17 +230,30 @@
     .inputField {
         font-size: 1rem;
     }
+    .modalContent {
+        padding: 1rem;
+    }
+    .modalContent h3 {
+        font-size: 1.1rem;
+    }
+    .customWordTextarea {
+        font-size: 0.9rem;
+    }
+    .modalButton {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.85rem;
+    }
 }
 
 @media (min-width: 768px) {
     .wordModeRoot {
-        padding: 1rem; 
+        padding: 1rem;
     }
     .wordOverlay {
-        font-size: 2.25rem; 
+        font-size: 2.25rem;
     }
     .inputField {
-        font-size: 1.2rem; 
+        font-size: 1.2rem;
     }
     .statsDisplay {
         font-size: 0.85rem;
@@ -141,33 +261,42 @@
     }
 }
 
-/* 🌙 Dark Mode */
 @media (prefers-color-scheme: dark) {
     .wordModeRoot {
-        background-color: #1f2937; /* Darker card background */
-        border-color: #374151; 
+        background-color: #1f2937;
+        border-color: #374151;
         color: #f3f4f6;
     }
 
     .statsDisplay {
-        color: #9ca3af; 
-        border-bottom-color: #374151; 
+        color: #9ca3af;
+        border-bottom-color: #374151;
     }
 
     .inputField {
-        background-color: #374151; /* Darker input background */
+        background-color: #374151;
         color: #f9fafb;
-        border-color: #4b5563; /* Darker border */
+        border-color: #4b5563;
+    }
+
+    .setCustomWordButton {
+        background-color: #2d3748;
+        color: #cbd5e0;
+        border-color: #4a5568;
+    }
+    .setCustomWordButton:hover {
+        background-color: #374151;
+        border-color: #525f73;
     }
 
     .inputField:focus {
-        border-color: #60a5fa; /* Lighter blue for focus in dark mode */
+        border-color: #60a5fa;
         box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.3);
     }
-    
+
     .inputField:disabled {
-        background-color: #2d3748; /* Darker disabled background */
-        color: #718096; /* Muted text color for disabled */
+        background-color: #2d3748;
+        color: #718096;
     }
 
     .toggleButton {
@@ -177,15 +306,55 @@
     }
 
     .toggleButton:hover {
-        background-color: #4b5563;
+        background-color: #4b63;
         border-color: #6b7280;
     }
 
     .correct {
-        color: #34d399; /* Brighter green for dark mode */
+        color: #34d399;
     }
-    
+
     .incorrect {
-        color: #f87171; /* Brighter red for dark mode */
+        color: #f87171;
+    }
+
+    .modalContent {
+        background-color: #1f2937;
+        color: #f3f4f6;
+        border: 1px solid #374151;
+    }
+
+    .modalContent h3 {
+        color: #e5e7eb;
+    }
+
+    .modalInstructions {
+        color: #9ca3af;
+    }
+
+    .customWordTextarea {
+        background-color: #374151;
+        color: #f9fafb;
+        border-color: #4b63;
+    }
+
+    .customWordTextarea:focus {
+        border-color: #60a5fa;
+        box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.2);
+    }
+
+    .modalButtonSave {
+        background-color: #3b82f6;
+    }
+    .modalButtonSave:hover {
+        background-color: #2563eb;
+    }
+    .modalButtonCancel {
+        background-color: #374151;
+        color: #f3f4f6;
+        border-color: #4b5563;
+    }
+    .modalButtonCancel:hover {
+        background-color: #4b5563;
     }
 }

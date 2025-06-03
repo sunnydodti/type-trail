@@ -4,12 +4,6 @@ import styles from './WordMode.module.css'
 
 const defaultWords = ['apple', 'banana', 'cherry', 'dragonfruit']
 
-/**
- * Gets a random word from the list, optionally excluding a specific word.
- * @param allWords The list of words to choose from.
- * @param excludeWord An optional word to exclude from the selection.
- * @returns A random word, or an empty string if no suitable word can be found.
- */
 function getRandomWord(allWords: string[], excludeWord?: string): string {
     if (!allWords || allWords.length === 0) {
         return '';
@@ -17,29 +11,29 @@ function getRandomWord(allWords: string[], excludeWord?: string): string {
 
     let possibleWords = allWords;
     if (excludeWord) {
-        // Filter out the word to be excluded
         possibleWords = allWords.filter(w => w !== excludeWord);
     }
 
     if (possibleWords.length === 0) {
-        // This means either the original list was empty,
-        // or all words in the list were the 'excludeWord'.
-        // If the original list (allWords) is not empty, but possibleWords is,
-        // it implies all original words were the one to be excluded.
-        // In this case, we cannot pick a *different* word.
+        if (allWords.length > 0 && allWords.every(w => w === excludeWord)) {
+            return allWords[0];
+        }
         return '';
     }
 
-    // Return a random word from the filtered list
     return possibleWords[Math.floor(Math.random() * possibleWords.length)];
 }
 
 
 export default function WordMode() {
-    const [words, setWords] = useState<string[]>(defaultWords) // This could be dynamic later
+    const [words, setWords] = useState<string[]>(defaultWords)
     const [multiWordMode, setMultiWordMode] = useState(false)
-    const [word, setWord] = useState<string>('') // Initialize with empty, useEffect will set it
+    const [word, setWord] = useState<string>('')
     const [input, setInput] = useState<string>('')
+    
+    const [isCustomWordModalOpen, setIsCustomWordModalOpen] = useState(false);
+    const [customWordInputValue, setCustomWordInputValue] = useState('');
+
 
     const [correctCount, setCorrectCount] = useState(0)
     const [wrongCount, setWrongCount] = useState(0)
@@ -53,24 +47,30 @@ export default function WordMode() {
         setCorrectCount(0);
         setWrongCount(0);
         setStreak(0);
-        setMaxStreak(0); // Reset max streak per mode session
+        setMaxStreak(0);
         setInput('');
     };
 
-    // Effect to handle mode changes (single/multi-word) and word list changes
     useEffect(() => {
         resetStats();
         if (multiWordMode) {
-            setWord(getRandomWord(words, word)); // Get a new random word, try to exclude current
+            if (words.length > 0) {
+                setWord(getRandomWord(words, word));
+            } else {
+                setWord(defaultWords.length > 0 ? getRandomWord(defaultWords) : '');
+            }
         } else {
-            // For single word mode, or if words list is empty, use the first word or a default.
-            setWord(words[0] || defaultWords[0]);
+            if (words.length > 0) {
+                setWord(words[0]);
+            } else {
+                setWord(defaultWords.length > 0 ? defaultWords[0] : '');
+            }
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [multiWordMode, words]); // Rerun if mode or the base word list changes. `word` is intentionally omitted here as per logic.
-
+    }, [multiWordMode, words]);
+    
     useEffect(() => {
-        if (!word) return; // Do nothing if there's no current word
+        if (!word) return;
 
         if (input === word) {
             setCorrectCount((c) => c + 1)
@@ -79,26 +79,36 @@ export default function WordMode() {
             setMaxStreak((m) => Math.max(m, newStreak));
             setInput('')
             if (multiWordMode) {
-                setWord(getRandomWord(words, word)); // Get a new word, exclude current one
+                setWord(getRandomWord(words, word));
             }
-            // In single word mode, the word remains the same for repeated practice.
         } else if (input.length >= word.length && input !== word) {
             setWrongCount((w) => w + 1)
             setStreak(0)
             setInput('')
-            // Word does not change on wrong attempt in either mode, user retries.
         }
     }, [input, word, multiWordMode, words, streak]);
 
     useEffect(() => {
-        // Initialize word on mount based on initial mode
         if (multiWordMode) {
-            setWord(getRandomWord(words));
+            setWord(words.length > 0 ? getRandomWord(words) : (defaultWords.length > 0 ? getRandomWord(defaultWords) : ''));
         } else {
-            setWord(words[0] || defaultWords[0]);
+            setWord(words[0] || (defaultWords.length > 0 ? defaultWords[0] : ''));
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []); // Run only on mount
+    }, []);
+
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.shiftKey && (event.key === 'S' || event.key === 's')) {
+                event.preventDefault();
+                setIsCustomWordModalOpen(prev => !prev);
+            }
+        };
+        document.addEventListener('keydown', handleKeyDown);
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown);
+        };
+    }, []);
 
     useEffect(() => {
         if (totalAttempts > 0) {
@@ -113,6 +123,42 @@ export default function WordMode() {
             });
         }
     }, [correctCount, wrongCount, streak, multiWordMode, totalAttempts]);
+
+    const openCustomWordModal = () => {
+        const isUsingDefaultWords = words.length === defaultWords.length && words.every((val, index) => val === defaultWords[index]);
+
+        if (multiWordMode) {
+            setCustomWordInputValue(isUsingDefaultWords ? '' : words.join(', '));
+        } else {
+            setCustomWordInputValue(isUsingDefaultWords ? '' : (words[0] || ''));
+        }
+        setIsCustomWordModalOpen(true);
+    };
+
+    const closeCustomWordModal = () => {
+        setIsCustomWordModalOpen(false);
+    };
+
+    const handleSaveCustomWords = () => {
+        const trimmedInput = customWordInputValue.trim();
+        let newPracticeWords: string[] = [];
+
+        if (trimmedInput === '') {
+            newPracticeWords = defaultWords;
+        } else {
+            if (multiWordMode) {
+                newPracticeWords = trimmedInput.split(',').map(w => w.trim()).filter(w => w.length > 0);
+            } else {
+                const singleWord = trimmedInput.split(',')[0].trim();
+                if (singleWord.length > 0) newPracticeWords = [singleWord];
+            }
+        }
+        if (newPracticeWords.length === 0) {
+            newPracticeWords = defaultWords;
+        }
+        setWords(newPracticeWords);
+        closeCustomWordModal();
+    };
 
     function renderWordOverlay() {
         if (!word) return <div className={styles.wordOverlay}>Loading word...</div>;
@@ -144,8 +190,6 @@ export default function WordMode() {
                 <span>Streak: {streak}</span>
                 <span>Max: {maxStreak}</span>
             </div>
-
-            {/* The h2 title "Word Mode" and p "Type the word:" are removed for compactness */}
             
             {renderWordOverlay()}
             
@@ -159,6 +203,10 @@ export default function WordMode() {
                 placeholder={word ? "Type here..." : "No word selected"}
             />
 
+            <button onClick={openCustomWordModal} className={styles.setCustomWordButton}>
+                Set Custom Word(s) (Shift+S)
+            </button>
+
             <div className={styles.modeToggleContainer}>
                 <button
                     className={styles.toggleButton}
@@ -167,6 +215,31 @@ export default function WordMode() {
                     {multiWordMode ? 'Practice Single Word' : 'Practice Multiple Words'}
                 </button>
             </div>
+
+            {isCustomWordModalOpen && (
+                <div className={styles.modalOverlay} onClick={closeCustomWordModal}>
+                    <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+                        <h3>{multiWordMode ? "Set Custom Word List" : "Set Custom Word"}</h3>
+                        <p className={styles.modalInstructions}>
+                            {multiWordMode
+                                ? "Enter words separated by commas (e.g., hello,world,example)."
+                                : "Enter a single word to practice."}
+                        </p>
+                        <textarea
+                            className={styles.customWordTextarea}
+                            value={customWordInputValue}
+                            onChange={(e) => setCustomWordInputValue(e.target.value)}
+                            rows={multiWordMode ? 4 : 2}
+                            placeholder={multiWordMode ? "e.g., quick,brown,fox" : "e.g., practice"}
+                            autoFocus
+                        />
+                        <div className={styles.modalActions}>
+                            <button onClick={handleSaveCustomWords} className={`${styles.modalButton} ${styles.modalButtonSave}`}>Save</button>
+                            <button onClick={closeCustomWordModal} className={`${styles.modalButton} ${styles.modalButtonCancel}`}>Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }
