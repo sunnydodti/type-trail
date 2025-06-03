@@ -30,3 +30,6 @@ jobs:
         with:
           github_token: ${{ secrets.DEPLOY_TOKEN }}
           publish_dir: ./typetrail/dist
+          user_name: 'sunny[bot]'
+          user_email: '40462053+sunnydodti@users.noreply.github.com'
+          commit_message: 'Deploy to GitHub Pages'
