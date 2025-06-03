@@ -14,7 +14,7 @@ export default function App() {
           Word Mode
         </button>
         <button className={styles.button} onClick={() => setMode('sentence')} disabled>
-          Sentence Mode (coming soon)
+          Sentence Mode (coming soon...)
         </button>
       </div>
 

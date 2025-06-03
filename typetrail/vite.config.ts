@@ -18,7 +18,7 @@ export default defineConfig({
         theme_color: '#3b82f6',
         background_color: '#ffffff',
         display: 'standalone',
-        start_url: '/',
+        start_url: '/type-trail/',
         icons: [
           {
             src: 'pwa-192x192.png',
