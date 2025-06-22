@@ -1,7 +1,7 @@
 import { db } from '../db';
 import type { AppSettings, GlobalSettings, WordModeSettings, SentenceModeSettings } from '../types/settings';
 
-const DEFAULT_SETTINGS: AppSettings = {
+export const DEFAULT_SETTINGS: AppSettings = {
   version: 1,
   global: {
     theme: 'dark',
@@ -81,9 +81,15 @@ const DEFAULT_SETTINGS: AppSettings = {
 class SettingsService {
   private settings: AppSettings = DEFAULT_SETTINGS;
   private listeners: Set<(settings: AppSettings) => void> = new Set();
+  private ready: Promise<void>;
 
   constructor() {
-    this.loadSettings();
+    this.ready = this.loadSettings();
+  }
+
+  async waitForReady() {
+    await this.ready;
+    return this.settings;
   }
 
   private async loadSettings() {
@@ -93,9 +99,19 @@ class SettingsService {
         // Merge saved settings with defaults to ensure new settings are included
         this.settings = this.mergeWithDefaults(savedSettings.value as AppSettings);
       }
+      await this.persistSettings();
       this.notifyListeners();
     } catch (error) {
       console.error('Failed to load settings:', error);
+    }
+  }
+
+  private async persistSettings() {
+    try {
+      await db.settings.put({ key: 'appSettings', value: this.settings });
+    } catch (error) {
+      console.error('Failed to save settings:', error);
+      throw error; // Re-throw to allow caller to handle
     }
   }
 
@@ -109,22 +125,10 @@ class SettingsService {
     };
   }
 
-  private async saveSettings() {
-    try {
-      await db.settings.put({
-        key: 'appSettings',
-        value: this.settings,
-      });
-      this.notifyListeners();
-    } catch (error) {
-      console.error('Failed to save settings:', error);
-    }
-  }
 
   private notifyListeners() {
     this.listeners.forEach(listener => listener(this.settings));
   }
-
   // Subscribe to settings changes
   subscribe(listener: (settings: AppSettings) => void) {
     this.listeners.add(listener);
@@ -133,25 +137,29 @@ class SettingsService {
   }
 
   // Update specific sections of settings
-  updateGlobalSettings(settings: Partial<GlobalSettings>) {
+  async updateGlobalSettings(settings: Partial<GlobalSettings>) {
     this.settings.global = { ...this.settings.global, ...settings };
-    this.saveSettings();
+    this.notifyListeners(); // Notify immediately for real-time UI updates
+    await this.persistSettings();
   }
 
-  updateWordModeSettings(settings: Partial<WordModeSettings>) {
+  async updateWordModeSettings(settings: Partial<WordModeSettings>) {
     this.settings.wordMode = { ...this.settings.wordMode, ...settings };
-    this.saveSettings();
+    this.notifyListeners(); // Notify immediately for real-time UI updates
+    await this.persistSettings();
   }
 
-  updateSentenceModeSettings(settings: Partial<SentenceModeSettings>) {
+  async updateSentenceModeSettings(settings: Partial<SentenceModeSettings>) {
     this.settings.sentenceMode = { ...this.settings.sentenceMode, ...settings };
-    this.saveSettings();
+    this.notifyListeners(); // Notify immediately for real-time UI updates
+    await this.persistSettings();
   }
 
   // Reset settings to defaults
-  resetToDefaults() {
+  async resetToDefaults() {
     this.settings = { ...DEFAULT_SETTINGS };
-    this.saveSettings();
+    this.notifyListeners(); // Notify immediately for real-time UI updates
+    await this.persistSettings();
   }
 
   // Get current settings

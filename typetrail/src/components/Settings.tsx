@@ -1,12 +1,63 @@
-import { useState } from 'react';
-import { useSettings } from '../context/SettingsContext';
+import { useState, useCallback, useEffect } from 'react';
+import { useSettings } from '../hooks/useSettings';
 import styles from './Settings.module.css';
 
 type SettingsTab = 'global' | 'wordMode' | 'sentenceMode' | 'keyBindings';
 
 export default function Settings() {
-  const { settings, updateGlobalSettings, updateWordModeSettings, updateSentenceModeSettings, resetToDefaults } = useSettings();
   const [activeTab, setActiveTab] = useState<SettingsTab>('global');
+  const [localSettings, setLocalSettings] = useState({
+    global: { soundEnabled: false, soundVolume: 0.5, showWPM: false, saveStats: false },
+    wordMode: { multiWordDefault: false, caseSensitive: false },
+    sentenceMode: { punctuationRequired: false, caseSensitive: false }
+  });
+  const { settings, updateGlobalSettings, updateWordModeSettings, updateSentenceModeSettings, resetToDefaults } = useSettings();
+
+  // Initialize local settings from context
+  useEffect(() => {
+    setLocalSettings({
+      global: { ...settings.global },
+      wordMode: { ...settings.wordMode },
+      sentenceMode: { ...settings.sentenceMode }
+    });
+  }, [settings]);
+
+  const handleGlobalBoolChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const key = e.target.name as keyof typeof settings.global;
+    setLocalSettings(prev => ({
+      ...prev,
+      global: { ...prev.global, [key]: e.target.checked }
+    }));
+    updateGlobalSettings({ [key]: e.target.checked });
+  }, [updateGlobalSettings]);
+
+  const handleGlobalRangeChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const key = e.target.name as keyof typeof settings.global;
+    const value = Number(e.target.value);
+    setLocalSettings(prev => ({
+      ...prev,
+      global: { ...prev.global, [key]: value }
+    }));
+    updateGlobalSettings({ [key]: value });
+  }, [updateGlobalSettings]);
+
+  const handleWordModeChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const key = e.target.name as keyof typeof settings.wordMode;
+    setLocalSettings(prev => ({
+      ...prev,
+      wordMode: { ...prev.wordMode, [key]: e.target.checked }
+    }));
+    updateWordModeSettings({ [key]: e.target.checked });
+  }, [updateWordModeSettings]);
+
+  const handleSentenceModeChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const key = e.target.name as keyof typeof settings.sentenceMode;
+    setLocalSettings(prev => ({
+      ...prev,
+      sentenceMode: { ...prev.sentenceMode, [key]: e.target.checked }
+    }));
+    updateSentenceModeSettings({ [key]: e.target.checked });
+  }, [updateSentenceModeSettings]);
 
   return (
     <div className={styles.settingsContainer}>
@@ -45,8 +96,9 @@ export default function Settings() {
               <label>
                 <input
                   type="checkbox"
-                  checked={settings.global.soundEnabled}
-                  onChange={(e) => updateGlobalSettings({ soundEnabled: e.target.checked })}
+                  name="soundEnabled"
+                  checked={localSettings.global.soundEnabled}
+                  onChange={handleGlobalBoolChange}
                 />
                 Enable Sound Effects
               </label>
@@ -56,11 +108,12 @@ export default function Settings() {
                 Sound Volume
                 <input
                   type="range"
+                  name="soundVolume"
                   min="0"
                   max="1"
                   step="0.1"
-                  value={settings.global.soundVolume}
-                  onChange={(e) => updateGlobalSettings({ soundVolume: Number(e.target.value) })}
+                  value={localSettings.global.soundVolume}
+                  onChange={handleGlobalRangeChange}
                 />
               </label>
             </div>
@@ -68,8 +121,9 @@ export default function Settings() {
               <label>
                 <input
                   type="checkbox"
-                  checked={settings.global.showWPM}
-                  onChange={(e) => updateGlobalSettings({ showWPM: e.target.checked })}
+                  name="showWPM"
+                  checked={localSettings.global.showWPM}
+                  onChange={handleGlobalBoolChange}
                 />
                 Show WPM
               </label>
@@ -78,8 +132,9 @@ export default function Settings() {
               <label>
                 <input
                   type="checkbox"
-                  checked={settings.global.saveStats}
-                  onChange={(e) => updateGlobalSettings({ saveStats: e.target.checked })}
+                  name="saveStats"
+                  checked={localSettings.global.saveStats}
+                  onChange={handleGlobalBoolChange}
                 />
                 Save Statistics
               </label>
@@ -91,12 +146,12 @@ export default function Settings() {
           <div className={styles.settingsSection}>
             <h2>Word Mode Settings</h2>
             <div className={styles.settingItem}>
-              <label>
-                <input
-                  type="checkbox"
-                  checked={settings.wordMode.multiWordDefault}
-                  onChange={(e) => updateWordModeSettings({ multiWordDefault: e.target.checked })}
-                />
+              <label>                <input
+                type="checkbox"
+                name="multiWordDefault"
+                checked={localSettings.wordMode.multiWordDefault}
+                onChange={handleWordModeChange}
+              />
                 Multi-word Mode Default
               </label>
             </div>
@@ -104,8 +159,9 @@ export default function Settings() {
               <label>
                 <input
                   type="checkbox"
-                  checked={settings.wordMode.caseSensitive}
-                  onChange={(e) => updateWordModeSettings({ caseSensitive: e.target.checked })}
+                  name="caseSensitive"
+                  checked={localSettings.wordMode.caseSensitive}
+                  onChange={handleWordModeChange}
                 />
                 Case Sensitive
               </label>
@@ -117,12 +173,12 @@ export default function Settings() {
           <div className={styles.settingsSection}>
             <h2>Sentence Mode Settings</h2>
             <div className={styles.settingItem}>
-              <label>
-                <input
-                  type="checkbox"
-                  checked={settings.sentenceMode.punctuationRequired}
-                  onChange={(e) => updateSentenceModeSettings({ punctuationRequired: e.target.checked })}
-                />
+              <label>                <input
+                type="checkbox"
+                name="punctuationRequired"
+                checked={localSettings.sentenceMode.punctuationRequired}
+                onChange={handleSentenceModeChange}
+              />
                 Require Punctuation
               </label>
             </div>
@@ -130,8 +186,9 @@ export default function Settings() {
               <label>
                 <input
                   type="checkbox"
-                  checked={settings.sentenceMode.caseSensitive}
-                  onChange={(e) => updateSentenceModeSettings({ caseSensitive: e.target.checked })}
+                  name="caseSensitive"
+                  checked={localSettings.sentenceMode.caseSensitive}
+                  onChange={handleSentenceModeChange}
                 />
                 Case Sensitive
               </label>
@@ -180,13 +237,12 @@ export default function Settings() {
           </div>
         )}
 
-        <div className={styles.settingsActions}>
-          <button
-            className={styles.resetButton}
-            onClick={resetToDefaults}
-          >
-            Reset to Defaults
-          </button>
+        <div className={styles.settingsActions}>          <button
+          className={styles.resetButton}
+          onClick={resetToDefaults}
+        >
+          Reset to Defaults
+        </button>
         </div>
       </div>
     </div>

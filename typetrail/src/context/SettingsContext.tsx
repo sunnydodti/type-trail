@@ -1,30 +1,58 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import { useState, useEffect, type ReactNode } from 'react';
+import { settingsService, DEFAULT_SETTINGS } from '../services/settingsService';
+import type { SettingsContextType } from './SettingsContext.types';
 import type { AppSettings } from '../types/settings';
-import { settingsService } from '../services/settingsService';
-
-interface SettingsContextType {
-  settings: AppSettings;
-  updateGlobalSettings: typeof settingsService.updateGlobalSettings;
-  updateWordModeSettings: typeof settingsService.updateWordModeSettings;
-  updateSentenceModeSettings: typeof settingsService.updateSentenceModeSettings;
-  resetToDefaults: typeof settingsService.resetToDefaults;
-}
-
-const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
+import { SettingsContext } from './SettingsContext.context';
 
 export function SettingsProvider({ children }: { children: ReactNode }) {
-  const [settings, setSettings] = useState<AppSettings>(settingsService.getSettings());
+  const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
+  const [isLoading, setIsLoading] = useState(true);  useEffect(() => {
+    let mounted = true;
 
-  useEffect(() => {
-    settingsService.subscribe(setSettings);
+    const init = async () => {
+      try {
+        // Wait for settings to be loaded from db
+        await settingsService.waitForReady();
+        if (!mounted) return;
+
+        // Subscribe to settings changes
+        const unsubscribe = settingsService.subscribe((newSettings) => {
+          if (mounted) {
+            setSettings(newSettings);
+          }
+        });
+
+        setIsLoading(false);
+
+        return () => {
+          unsubscribe();
+        };
+      } catch (error) {
+        console.error('Failed to initialize settings:', error);
+        if (mounted) {
+          setIsLoading(false); // Show UI with defaults on error
+        }
+      }
+    };
+
+    init();
+
+    return () => {
+      mounted = false;
+    };
   }, []);
 
+  if (isLoading) {
+    return null; // Or a loading spinner
+  }
   const value: SettingsContextType = {
     settings,
-    updateGlobalSettings: settingsService.updateGlobalSettings.bind(settingsService),
-    updateWordModeSettings: settingsService.updateWordModeSettings.bind(settingsService),
-    updateSentenceModeSettings: settingsService.updateSentenceModeSettings.bind(settingsService),
-    resetToDefaults: settingsService.resetToDefaults.bind(settingsService),
+    updateGlobalSettings: settingsService.updateGlobalSettings.bind(settingsService),    updateWordModeSettings: settingsService.updateWordModeSettings.bind(settingsService),    updateSentenceModeSettings: settingsService.updateSentenceModeSettings.bind(settingsService),
+    resetToDefaults: async () => {      // Update state immediately
+      setSettings(DEFAULT_SETTINGS);
+      // Persist in background
+      await settingsService.resetToDefaults();
+    },
   };
 
   return (
@@ -34,10 +62,4 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   );
 }
 
-export function useSettings() {
-  const context = useContext(SettingsContext);
-  if (!context) {
-    throw new Error('useSettings must be used within a SettingsProvider');
-  }
-  return context;
-}
+
