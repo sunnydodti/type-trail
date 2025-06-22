@@ -1,52 +1,7 @@
+/* Default dark theme */
 :root {
-  /* Base colors */
-  --bg-primary: #ffffff;
-  --bg-secondary: #f0f9ff;
-  --text-primary: #1f2937;
-  --text-secondary: #4b5563;
-  --accent-color: #2563eb;
+  color-scheme: dark;
   
-  /* UI Elements */
-  --shadow-color: rgba(0, 0, 0, 0.1);
-  --hover-color: #2563eb;
-  --border-color: #e5e7eb;
-  --input-bg: #ffffff;
-  --input-border: #d1d5db;
-  
-  /* State Colors */
-  --error-color: #dc2626;
-  --success-color: #16a34a;
-  
-  /* Button Styles */
-  --button-bg: #f3f4f6;
-  --button-text: #374151;
-  --button-border: #d1d5db;
-  --button-hover-bg: #e5e7eb;
-  --button-hover-border: #9ca3af;
-
-  /* Input and Form */
-  --input-background: var(--input-bg);
-  --text-color: var(--text-primary);
-  --text-disabled: var(--text-secondary);
-  --disabled-background: var(--bg-secondary);
-  --focus-color: var(--accent-color);
-  --focus-shadow: rgba(37, 99, 235, 0.2);
-  
-  /* Button and Interactive Elements */
-  --button-background: var(--button-bg);
-  --button-text: var(--button-text);
-  --button-hover-background: var(--button-hover-bg);
-  --border-hover-color: var(--button-hover-border);
-  --primary-color: var(--accent-color);
-  --primary-hover-color: var(--hover-color);
-  --text-on-primary: #ffffff;
-  
-  /* Modal and Overlay */
-  --overlay-background: rgba(0, 0, 0, 0.5);
-  --background-color: var(--bg-primary);
-}
-
-[data-theme="dark"] {
   /* Base colors */
   --bg-primary: #1f2937;
   --bg-secondary: #111827;
@@ -71,27 +26,36 @@
   --button-border: #4b5563;
   --button-hover-bg: #4b5563;
   --button-hover-border: #6b7280;
+}
 
-  /* Input and Form */
-  --input-background: var(--input-bg);
-  --text-color: var(--text-primary);
-  --text-disabled: var(--text-secondary);
-  --disabled-background: var(--bg-secondary);
-  --focus-color: var(--accent-color);
-  --focus-shadow: rgba(96, 165, 250, 0.2);
+/* Light theme when explicitly set */
+[data-theme="light"] {
+  color-scheme: light;
   
-  /* Button and Interactive Elements */
-  --button-background: var(--button-bg);
-  --button-text: var(--button-text);
-  --button-hover-background: var(--button-hover-bg);
-  --border-hover-color: var(--button-hover-border);
-  --primary-color: var(--accent-color);
-  --primary-hover-color: var(--hover-color);
-  --text-on-primary: #ffffff;
+  /* Base colors */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f0f9ff;
+  --text-primary: #1f2937;
+  --text-secondary: #4b5563;
+  --accent-color: #2563eb;
   
-  /* Modal and Overlay */
-  --overlay-background: rgba(0, 0, 0, 0.75);
-  --background-color: var(--bg-primary);
+  /* UI Elements */
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  --hover-color: #2563eb;
+  --border-color: #e5e7eb;
+  --input-bg: #ffffff;
+  --input-border: #d1d5db;
+  
+  /* State Colors */
+  --error-color: #dc2626;
+  --success-color: #16a34a;
+  
+  /* Button Styles */
+  --button-bg: #f3f4f6;
+  --button-text: #374151;
+  --button-border: #d1d5db;
+  --button-hover-bg: #e5e7eb;
+  --button-hover-border: #9ca3af;
 }
 
 /* Base styles */
