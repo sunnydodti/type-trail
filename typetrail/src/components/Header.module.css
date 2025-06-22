@@ -48,6 +48,22 @@
   color: var(--hover-color);
 }
 
+.nav button {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.nav button:hover {
+  color: var(--text-primary);
+  background-color: var(--button-hover-bg);
+}
+
 .themeToggle {
   background: none;
   border: none;

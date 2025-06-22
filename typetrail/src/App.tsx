@@ -4,15 +4,25 @@ import WordMode from './components/WordMode'
 import Header from './components/Header'
 import Footer from './components/Footer'
 import Sidebar from './components/Sidebar'
+import Settings from './components/Settings'
 import styles from './App.module.css'
 import { SettingsProvider } from './context/SettingsContext'
 
 export default function App() {
-  const [mode, setMode] = useState<'word' | 'sentence'>('word')
+  const [mode, setMode] = useState<'word' | 'sentence' | 'settings'>('word')
 
   useEffect(() => {
     document.documentElement.style.backgroundColor = 'var(--bg-secondary)';
     document.documentElement.style.color = 'var(--text-primary)';
+
+    const handleNavigation = (event: CustomEvent<string>) => {
+      setMode(event.detail as 'word' | 'sentence' | 'settings');
+    };
+
+    window.addEventListener('navigate', handleNavigation as EventListener);
+    return () => {
+      window.removeEventListener('navigate', handleNavigation as EventListener);
+    };
   }, []);
 
   return (
@@ -34,6 +44,7 @@ export default function App() {
           <div>
             {mode === 'word' && <WordMode />}
             {mode === 'sentence' && <p>Sentence mode is under development.</p>}
+            {mode === 'settings' && <Settings />}
           </div>
         </main>
       </div>

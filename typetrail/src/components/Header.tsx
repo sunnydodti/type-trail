@@ -9,11 +9,10 @@ export default function Header() {
       <div className={styles.logo}>
         <h1>TypeTrail</h1>
       </div>
-      <nav className={styles.nav}>
-        <ul>
-          <li><a href="#practice">Practice</a></li>
-          <li><a href="#stats">Statistics</a></li>
-          <li><a href="#settings">Settings</a></li>
+      <nav className={styles.nav}>        <ul>
+          <li><button onClick={() => window.dispatchEvent(new CustomEvent('navigate', { detail: 'word' }))}>Practice</button></li>
+          <li><button onClick={() => window.dispatchEvent(new CustomEvent('navigate', { detail: 'stats' }))}>Statistics</button></li>
+          <li><button onClick={() => window.dispatchEvent(new CustomEvent('navigate', { detail: 'settings' }))}>Settings</button></li>
           <li>
             <button 
               className={styles.themeToggle}
