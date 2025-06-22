@@ -159,7 +159,7 @@ export default function Settings() {
                   </code>
                 </div>
               ))}
-              
+
               <h3>Word Mode</h3>
               {Object.entries(settings.wordMode.keyBindings).map(([key, binding]) => (
                 <div key={key} className={styles.keyBinding}>
@@ -181,7 +181,7 @@ export default function Settings() {
         )}
 
         <div className={styles.settingsActions}>
-          <button 
+          <button
             className={styles.resetButton}
             onClick={resetToDefaults}
           >

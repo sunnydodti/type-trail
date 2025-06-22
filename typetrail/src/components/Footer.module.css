@@ -1,5 +1,4 @@
 .footer {
-  width: 100%;
   background-color: var(--bg-primary);
   border-top: 1px solid var(--border-color);
   padding: .5rem;
@@ -25,7 +24,6 @@
 .links {
   display: flex;
   gap: 1rem;
-  margin-top: 0.5rem;
 }
 
 .links a {

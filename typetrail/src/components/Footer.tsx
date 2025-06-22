@@ -7,8 +7,6 @@ export default function Footer() {
 				<p>TypeTrail - Improve your typing skills</p>
 				<div className={styles.links}>
 					<a href="#about">About</a>
-					<a href="#contact">Contact</a>
-					<a href="#privacy">Privacy Policy</a>
 				</div>
 			</div>
 		</footer>
