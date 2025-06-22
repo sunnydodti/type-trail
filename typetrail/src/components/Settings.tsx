@@ -1,11 +1,12 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useSettings } from '../hooks/useSettings';
+import CustomWordsDialog from './CustomWordsDialog';
 import styles from './Settings.module.css';
 
 type SettingsTab = 'global' | 'wordMode' | 'sentenceMode' | 'keyBindings';
 
-export default function Settings() {
-  const [activeTab, setActiveTab] = useState<SettingsTab>('global');
+export default function Settings() {  const [activeTab, setActiveTab] = useState<SettingsTab>('global');
+  const [isCustomWordsOpen, setIsCustomWordsOpen] = useState(false);
   const [localSettings, setLocalSettings] = useState({
     global: { soundEnabled: false, soundVolume: 0.5, showWPM: false, saveStats: false },
     wordMode: { multiWordDefault: false, caseSensitive: false },
@@ -144,8 +145,7 @@ export default function Settings() {
 
         {activeTab === 'wordMode' && (
           <div className={styles.settingsSection}>
-            <h2>Word Mode Settings</h2>
-            <div className={styles.settingItem}>
+            <h2>Word Mode Settings</h2>            <div className={styles.settingItem}>
               <label>                <input
                 type="checkbox"
                 name="multiWordDefault"
@@ -154,6 +154,14 @@ export default function Settings() {
               />
                 Multi-word Mode Default
               </label>
+            </div>
+            <div className={styles.settingItem}>
+              <button 
+                className={styles.dialogButton}
+                onClick={() => setIsCustomWordsOpen(true)}
+              >
+                Set Custom Words
+              </button>
             </div>
             <div className={styles.settingItem}>
               <label>
@@ -242,9 +250,19 @@ export default function Settings() {
           onClick={resetToDefaults}
         >
           Reset to Defaults
-        </button>
-        </div>
+        </button>        </div>
       </div>
+
+      <CustomWordsDialog
+        isOpen={isCustomWordsOpen}
+        onClose={() => setIsCustomWordsOpen(false)}
+        onSave={(words) => {
+          // Here you'll need to implement the word list saving logic
+          console.log('Saving words:', words);
+          setIsCustomWordsOpen(false);
+        }}
+        initialWords={Object.values(settings.wordMode.customWordLists).flat() || []}
+      />
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { db } from '../db'
 import styles from './WordMode.module.css'
+import CustomWordsDialog from './CustomWordsDialog'
 
 const defaultWords = ['apple', 'banana', 'cherry', 'dragonfruit']
 
@@ -30,10 +31,7 @@ export default function WordMode() {
   const [multiWordMode, setMultiWordMode] = useState(false)
   const [word, setWord] = useState<string>('')
   const [input, setInput] = useState<string>('')
-
   const [isCustomWordModalOpen, setIsCustomWordModalOpen] = useState(false);
-  const [customWordInputValue, setCustomWordInputValue] = useState('');
-
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [correctCount, setCorrectCount] = useState(0)
@@ -126,54 +124,11 @@ export default function WordMode() {
   const closeCustomWordModal = useCallback(() => {
     setIsCustomWordModalOpen(false);
   }, []);
-
-  const handleSaveCustomWords = useCallback(() => {
-    const trimmedInput = customWordInputValue.trim();
-    let newPracticeWords: string[] = [];
-
-    if (trimmedInput === '') {
-      newPracticeWords = defaultWords;
-    } else {
-      if (multiWordMode) {
-        newPracticeWords = trimmedInput.split(',').map(w => w.trim()).filter(w => w.length > 0);
-      } else {
-        const singleWord = trimmedInput.split(',')[0].trim();
-        if (singleWord.length > 0) newPracticeWords = [singleWord];
-      }
-    }
-    if (newPracticeWords.length === 0) {
-      newPracticeWords = defaultWords;
-    }
-    setWords(newPracticeWords);
-    closeCustomWordModal();
-  }, [customWordInputValue, multiWordMode, setWords, closeCustomWordModal]);
-
   useEffect(() => {
-    if (isCustomWordModalOpen) {
-      const handleModalKeyDown = (event: KeyboardEvent) => {
-        if (event.key === 'Escape') {
-          event.preventDefault();
-          closeCustomWordModal();
-        } else if (event.key === 'Enter' && !event.shiftKey && !event.ctrlKey && !event.altKey) {
-          if (event.target instanceof HTMLTextAreaElement && event.target.form) {
-            if (!event.shiftKey) {
-              event.preventDefault();
-              handleSaveCustomWords();
-            }
-          } else {
-            event.preventDefault();
-            handleSaveCustomWords();
-          }
-        }
-      };
-      document.addEventListener('keydown', handleModalKeyDown);
-      return () => {
-        document.removeEventListener('keydown', handleModalKeyDown);
-      };
-    } else {
+    if (!isCustomWordModalOpen) {
       inputRef.current?.focus();
     }
-  }, [isCustomWordModalOpen, handleSaveCustomWords, closeCustomWordModal]);
+  }, [isCustomWordModalOpen]);
 
   useEffect(() => {
     if (totalAttempts > 0) {
@@ -188,15 +143,7 @@ export default function WordMode() {
       });
     }
   }, [correctCount, wrongCount, streak, multiWordMode, totalAttempts]);
-
   const openCustomWordModal = () => {
-    const isUsingDefaultWords = words.length === defaultWords.length && words.every((val, index) => val === defaultWords[index]);
-
-    if (multiWordMode) {
-      setCustomWordInputValue(isUsingDefaultWords ? '' : words.join(', '));
-    } else {
-      setCustomWordInputValue(isUsingDefaultWords ? '' : (words[0] || ''));
-    }
     setIsCustomWordModalOpen(true);
   };
 
@@ -255,32 +202,16 @@ export default function WordMode() {
         >
           {multiWordMode ? 'Practice Single Word' : 'Practice Multiple Words'}
         </button>
-      </div>
-
-      {isCustomWordModalOpen && (
-        <div className={styles.modalOverlay} onClick={closeCustomWordModal}>
-          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-            <h3>{multiWordMode ? "Set Custom Word List" : "Set Custom Word"}</h3>
-            <p className={styles.modalInstructions}>
-              {multiWordMode
-                ? "Enter words separated by commas (e.g., hello,world,example)."
-                : "Enter a single word to practice."}
-            </p>
-            <textarea
-              className={styles.customWordTextarea}
-              value={customWordInputValue}
-              onChange={(e) => setCustomWordInputValue(e.target.value)}
-              rows={multiWordMode ? 4 : 2}
-              placeholder={multiWordMode ? "e.g., quick,brown,fox" : "e.g., practice"}
-              autoFocus
-            />
-            <div className={styles.modalActions}>
-              <button onClick={handleSaveCustomWords} className={`${styles.modalButton} ${styles.modalButtonSave}`}>Save</button>
-              <button onClick={closeCustomWordModal} className={`${styles.modalButton} ${styles.modalButtonCancel}`}>Cancel</button>
-            </div>
-          </div>
-        </div>
-      )}
+      </div>      <CustomWordsDialog
+        isOpen={isCustomWordModalOpen}
+        onClose={closeCustomWordModal}
+        onSave={(newWords) => {
+          setWords(multiWordMode ? newWords : [newWords[0] || defaultWords[0]]);
+          closeCustomWordModal();
+        }}
+        initialWords={words}
+        multiWordMode={multiWordMode}
+      />
     </div>
   )
 }
