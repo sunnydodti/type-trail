@@ -8,15 +8,19 @@ import Settings from './components/Settings'
 import styles from './App.module.css'
 import { SettingsProvider } from './context/SettingsContext'
 
+type Page = 'practice' | 'stats' | 'settings';
+type PracticeMode = 'word' | 'sentence';
+
 export default function App() {
-  const [mode, setMode] = useState<'word' | 'sentence' | 'settings'>('word')
+  const [currentPage, setCurrentPage] = useState<Page>('practice');
+  const [practiceMode, setPracticeMode] = useState<PracticeMode>('word');
 
   useEffect(() => {
     document.documentElement.style.backgroundColor = 'var(--bg-secondary)';
     document.documentElement.style.color = 'var(--text-primary)';
 
-    const handleNavigation = (event: CustomEvent<string>) => {
-      setMode(event.detail as 'word' | 'sentence' | 'settings');
+    const handleNavigation = (event: CustomEvent<Page>) => {
+      setCurrentPage(event.detail);
     };
 
     window.addEventListener('navigate', handleNavigation as EventListener);
@@ -32,20 +36,36 @@ export default function App() {
       <div className={styles.wrapper}>
         <Sidebar />
         <main className={styles.mainContent}>
-          <div className={styles.buttons}>
-            <button className={styles.button} onClick={() => setMode('word')}>
-              Word Mode
-            </button>
-            <button className={styles.button} onClick={() => setMode('sentence')} disabled>
-              Sentence Mode (coming soon...)
-            </button>
-          </div>
+          {currentPage === 'practice' && (
+            <>
+              <div className={styles.buttons}>
+                <button 
+                  className={`${styles.button} ${practiceMode === 'word' ? styles.active : ''}`} 
+                  onClick={() => setPracticeMode('word')}
+                >
+                  Word Mode
+                </button>
+                <button 
+                  className={`${styles.button} ${practiceMode === 'sentence' ? styles.active : ''}`} 
+                  onClick={() => setPracticeMode('sentence')} 
+                  disabled
+                >
+                  Sentence Mode (coming soon...)
+                </button>
+              </div>
 
-          <div>
-            {mode === 'word' && <WordMode />}
-            {mode === 'sentence' && <p>Sentence mode is under development.</p>}
-            {mode === 'settings' && <Settings />}
-          </div>
+              <div>
+                {practiceMode === 'word' && <WordMode />}
+                {practiceMode === 'sentence' && <p>Sentence mode is under development.</p>}
+              </div>
+            </>
+          )}
+          
+          {currentPage === 'stats' && (
+            <div>Statistics page coming soon...</div>
+          )}
+          
+          {currentPage === 'settings' && <Settings />}
         </main>
       </div>
       <Footer />
