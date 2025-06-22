@@ -3,30 +3,33 @@
     flex-direction: column;
     align-items: center;
     width: 100%;
+    height: 100%;
     max-width: 500px;
     margin: 1rem auto;
-    padding: 0.75rem;
-    border: 1px solid #d1d5db;
+    padding: 20px;
+    border: 1px solid var(--border-color);
     border-radius: 8px;
-    background-color: #ffffff;
+    background-color: var(--background-color);
+    color: var(--text-color);
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     text-align: center;
     box-sizing: border-box;
-    transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+    transition: all 0.3s ease;
 }
 
 .statsDisplay {
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
     gap: 0.6rem 0.8rem;
     width: 100%;
-    padding-bottom: 0.6rem;
-    margin-bottom: 0.8rem;
+    padding: 10px 0;
+    margin-bottom: 20px;
     font-size: 0.8rem;
-    color: #4b5563;
-    border-bottom: 1px solid #e5e7eb;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border-color);
+    transition: all 0.3s ease;
 }
 
 .statsDisplay span {
@@ -51,56 +54,66 @@
 }
 
 .correct {
-    color: #16a34a;
+    color: var(--success-color);
 }
 
 .incorrect {
-    color: #dc2626;
+    color: var(--error-color);
+}
+
+.inputArea {
+    position: relative;
+    margin-bottom: 20px;
 }
 
 .inputField {
     width: 100%;
-    max-width: 300px;
-    margin-left: auto;
-    margin-right: auto;
-    padding: 0.5rem;
-    font-size: 1.1rem;
-    border: 1px solid #9ca3af;
+    padding: 12px;
+    margin-bottom: 10px;
+    font-size: 16px;
+    background-color: var(--input-background);
+    color: var(--text-color);
+    border: 2px solid var(--border-color);
     border-radius: 6px;
     outline: none;
     box-sizing: border-box;
     text-align: center;
-    margin-bottom: 1rem;
-    transition: border-color 0.2s, box-shadow 0.2s;
-    position: relative;
-    z-index: 1;
+    transition: all 0.3s ease;
 }
 
 .inputField:focus {
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
-}
-
-.setCustomWordButton {
-    padding: 0.4rem 0.8rem;
-    font-size: 0.85rem;
-    cursor: pointer;
-    background-color: #f0f0f0;
-    color: #333;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    margin-bottom: 1rem;
-    transition: background-color 0.2s, border-color 0.2s;
-}
-
-.setCustomWordButton:hover {
-    background-color: #e0e0e0;
-    border-color: #bbb;
+    border-color: var(--focus-color);
+    box-shadow: 0 0 0 3px var(--focus-shadow);
 }
 
 .inputField:disabled {
-    background-color: #f3f4f6;
+    background-color: var(--disabled-background);
+    color: var(--text-disabled);
     cursor: not-allowed;
+}
+
+.displayText {
+    font-size: 18px;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    white-space: pre-wrap;
+}
+
+.setCustomWordButton {
+    padding: 8px 16px;
+    font-size: 14px;
+    cursor: pointer;
+    background-color: var(--button-background);
+    color: var(--button-text);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    transition: all 0.2s ease;
+}
+
+.setCustomWordButton:hover {
+    background-color: var(--button-hover-background);
+    border-color: var(--border-hover-color);
 }
 
 .modeToggleContainer {
@@ -109,90 +122,86 @@
 }
 
 .toggleButton {
-    padding: 0.4rem 0.8rem;
+    padding: 8px 16px;
+    margin: 0 5px;
     font-size: 0.85rem;
     cursor: pointer;
-    background-color: #e5e7eb;
-    color: #374151;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
-    transition: background-color 0.2s, border-color 0.2s;
+    background-color: var(--button-background);
+    color: var(--button-text);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    transition: all 0.2s ease;
 }
 
 .toggleButton:hover {
-    background-color: #d1d5db;
-    border-color: #9ca3af;
+    background-color: var(--button-hover-background);
+    border-color: var(--border-hover-color);
 }
 
-.modalOverlay {
+.modal {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0, 0, 0, 0.6);
     display: flex;
-    align-items: center;
     justify-content: center;
+    align-items: center;
+    background-color: var(--overlay-background);
     z-index: 1000;
-    padding: 1rem;
-    box-sizing: border-box;
 }
 
 .modalContent {
-    background-color: #ffffff;
-    padding: 1.5rem;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    padding: 24px;
     border-radius: 8px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    width: 100%;
-    max-width: 450px;
-    text-align: left;
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    box-sizing: border-box;
+    border: 1px solid var(--border-color);
+    max-width: 500px;
+    width: 90%;
+    position: relative;
+    transition: all 0.3s ease;
 }
 
 .modalContent h3 {
-    margin-top: 0;
-    margin-bottom: 0.5rem;
-    font-size: 1.25rem;
-    color: #333;
+    margin: 0 0 16px;
+    color: var(--text-color);
+    font-size: 1.5em;
 }
 
 .modalInstructions {
-    font-size: 0.9rem;
-    color: #555;
-    margin-bottom: 0.5rem;
-    line-height: 1.4;
+    color: var(--text-secondary);
+    margin-bottom: 16px;
 }
 
 .customWordTextarea {
     width: 100%;
-    padding: 0.5rem;
-    font-size: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
+    min-height: 100px;
+    padding: 12px;
+    margin-bottom: 16px;
+    background-color: var(--input-background);
+    color: var(--text-color);
+    border: 2px solid var(--border-color);
+    border-radius: 6px;
     resize: vertical;
-    min-height: 60px;
+    font-family: inherit;
+    transition: all 0.3s ease;
 }
 
 .customWordTextarea:focus {
-    border-color: #3b82f6;
     outline: none;
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+    border-color: var(--focus-color);
+    box-shadow: 0 0 0 2px var(--focus-shadow);
 }
 
-.modalActions {
+.modalButtons {
     display: flex;
     justify-content: flex-end;
-    gap: 0.75rem;
-    margin-top: 1rem;
+    gap: 12px;
 }
 
 .modalButton {
-    padding: 0.5rem 1rem;
+    padding: 8px 16px;
     border: none;
     border-radius: 4px;
     cursor: pointer;
@@ -202,20 +211,25 @@
 }
 
 .modalButtonSave {
-    background-color: #2563eb;
-    color: white;
+    background-color: var(--primary-color);
+    color: var(--text-on-primary);
 }
+
 .modalButtonSave:hover {
-    background-color: #1d4ed8;
+    background-color: var(--primary-hover-color);
 }
 
 .modalButtonCancel {
-    background-color: #e5e7eb;
-    color: #374151;
-    border: 1px solid #d1d5db;
+    background-color: var(--button-background);
+    color: var(--button-text);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
 }
+
 .modalButtonCancel:hover {
-    background-color: #d1d5db;
+    background-color: var(--button-hover-background);
 }
 
 
@@ -261,100 +275,4 @@
     }
 }
 
-@media (prefers-color-scheme: dark) {
-    .wordModeRoot {
-        background-color: #1f2937;
-        border-color: #374151;
-        color: #f3f4f6;
-    }
 
-    .statsDisplay {
-        color: #9ca3af;
-        border-bottom-color: #374151;
-    }
-
-    .inputField {
-        background-color: #374151;
-        color: #f9fafb;
-        border-color: #4b5563;
-    }
-
-    .setCustomWordButton {
-        background-color: #2d3748;
-        color: #cbd5e0;
-        border-color: #4a5568;
-    }
-    .setCustomWordButton:hover {
-        background-color: #374151;
-        border-color: #525f73;
-    }
-
-    .inputField:focus {
-        border-color: #60a5fa;
-        box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.3);
-    }
-
-    .inputField:disabled {
-        background-color: #2d3748;
-        color: #718096;
-    }
-
-    .toggleButton {
-        background-color: #374151;
-        color: #f3f4f6;
-        border: 1px solid #4b5563;
-    }
-
-    .toggleButton:hover {
-        background-color: #4b63;
-        border-color: #6b7280;
-    }
-
-    .correct {
-        color: #34d399;
-    }
-
-    .incorrect {
-        color: #f87171;
-    }
-
-    .modalContent {
-        background-color: #1f2937;
-        color: #f3f4f6;
-        border: 1px solid #374151;
-    }
-
-    .modalContent h3 {
-        color: #e5e7eb;
-    }
-
-    .modalInstructions {
-        color: #9ca3af;
-    }
-
-    .customWordTextarea {
-        background-color: #374151;
-        color: #f9fafb;
-        border-color: #4b63;
-    }
-
-    .customWordTextarea:focus {
-        border-color: #60a5fa;
-        box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.2);
-    }
-
-    .modalButtonSave {
-        background-color: #3b82f6;
-    }
-    .modalButtonSave:hover {
-        background-color: #2563eb;
-    }
-    .modalButtonCancel {
-        background-color: #374151;
-        color: #f3f4f6;
-        border-color: #4b5563;
-    }
-    .modalButtonCancel:hover {
-        background-color: #4b5563;
-    }
-}

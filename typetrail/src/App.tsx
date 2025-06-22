@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { ThemeProvider } from './context/ThemeContext'
 import WordMode from './components/WordMode'
 import Header from './components/Header'
 import Footer from './components/Footer'
@@ -8,8 +9,13 @@ import styles from './App.module.css'
 export default function App() {
   const [mode, setMode] = useState<'word' | 'sentence'>('word')
 
+  useEffect(() => {
+    document.documentElement.style.backgroundColor = 'var(--bg-secondary)';
+    document.documentElement.style.color = 'var(--text-primary)';
+  }, []);
+
   return (
-    <>
+    <ThemeProvider>
       <Header />
       <div className={styles.wrapper}>
         <Sidebar />
@@ -30,6 +36,6 @@ export default function App() {
         </main>
       </div>
       <Footer />
-    </>
+    </ThemeProvider>
   )
 }

@@ -20,16 +20,8 @@ export default function Sidebar() {
           </li>
         </ul>
       </div>
-      
-      <div className={styles.quickSettings}>
+        <div className={styles.quickSettings}>
         <h3>Quick Settings</h3>
-        <div className={styles.settingItem}>
-          <label>Theme</label>
-          <select>
-            <option value="light">Light</option>
-            <option value="dark">Dark</option>
-          </select>
-        </div>
         <div className={styles.settingItem}>
           <label>Word List</label>
           <select>
