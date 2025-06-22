@@ -5,6 +5,7 @@ import Header from './components/Header'
 import Footer from './components/Footer'
 import Sidebar from './components/Sidebar'
 import styles from './App.module.css'
+import { SettingsProvider } from './context/SettingsContext'
 
 export default function App() {
   const [mode, setMode] = useState<'word' | 'sentence'>('word')
@@ -15,7 +16,8 @@ export default function App() {
   }, []);
 
   return (
-    <ThemeProvider>
+    <SettingsProvider>
+      <ThemeProvider>
       <Header />
       <div className={styles.wrapper}>
         <Sidebar />
@@ -37,5 +39,6 @@ export default function App() {
       </div>
       <Footer />
     </ThemeProvider>
+    </SettingsProvider>
   )
 }
