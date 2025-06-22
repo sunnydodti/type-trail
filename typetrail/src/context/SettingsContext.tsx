@@ -16,7 +16,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   const [settings, setSettings] = useState<AppSettings>(settingsService.getSettings());
 
   useEffect(() => {
-    return settingsService.subscribe(setSettings);
+    settingsService.subscribe(setSettings);
   }, []);
 
   const value: SettingsContextType = {

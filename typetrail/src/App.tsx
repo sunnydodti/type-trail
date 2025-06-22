@@ -32,44 +32,47 @@ export default function App() {
   return (
     <SettingsProvider>
       <ThemeProvider>
-      <Header />
-      <div className={styles.wrapper}>
-        <Sidebar />
-        <main className={styles.mainContent}>
-          {currentPage === 'practice' && (
-            <>
-              <div className={styles.buttons}>
-                <button 
-                  className={`${styles.button} ${practiceMode === 'word' ? styles.active : ''}`} 
-                  onClick={() => setPracticeMode('word')}
-                >
-                  Word Mode
-                </button>
-                <button 
-                  className={`${styles.button} ${practiceMode === 'sentence' ? styles.active : ''}`} 
-                  onClick={() => setPracticeMode('sentence')} 
-                  disabled
-                >
-                  Sentence Mode (coming soon...)
-                </button>
-              </div>
+        <Header />
+        <div className={styles.wrapper}>
+          <Sidebar />
+          <div className={styles.mainContainer}>
+            <main className={styles.mainContent}>
+              {currentPage === 'practice' && (
+                <>
+                  <div className={styles.buttons}>
+                    <button
+                      className={`${styles.button} ${practiceMode === 'word' ? styles.active : ''}`}
+                      onClick={() => setPracticeMode('word')}
+                    >
+                      Word Mode
+                    </button>
+                    <button
+                      className={`${styles.button} ${practiceMode === 'sentence' ? styles.active : ''}`}
+                      onClick={() => setPracticeMode('sentence')}
+                      disabled
+                    >
+                      Sentence Mode (coming soon...)
+                    </button>
+                  </div>
 
-              <div>
-                {practiceMode === 'word' && <WordMode />}
-                {practiceMode === 'sentence' && <p>Sentence mode is under development.</p>}
-              </div>
-            </>
-          )}
-          
-          {currentPage === 'stats' && (
-            <div>Statistics page coming soon...</div>
-          )}
-          
-          {currentPage === 'settings' && <Settings />}
-        </main>
-      </div>
-      <Footer />
-    </ThemeProvider>
+                  <div>
+                    {practiceMode === 'word' && <WordMode />}
+                    {practiceMode === 'sentence' && <p>Sentence mode is under development.</p>}
+                  </div>
+                </>
+              )}
+
+              {currentPage === 'stats' && (
+                <div>Statistics page coming soon...</div>
+              )}
+
+              {currentPage === 'settings' && <Settings />}
+
+            </main>
+            <Footer />
+          </div>
+        </div>
+      </ThemeProvider>
     </SettingsProvider>
   )
 }

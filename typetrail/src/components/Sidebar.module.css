@@ -16,7 +16,7 @@
 
 .sidebarContent {
   width: 250px;
-  height: calc(100vh - 64px); /* Adjust based on your header height */
+  height: calc(100vh - 48px); /* Adjust based on your header height */
   padding: 1rem 1.5rem 1rem 1rem;
   margin-right: -0.5rem; /* For the scrollbar gap */
   overflow-y: auto;

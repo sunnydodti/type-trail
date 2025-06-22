@@ -1,24 +1,54 @@
 .wrapper {
     display: flex;
-    min-height: 100vh;
+    height: calc(100vh - 3.24rem); /* Adjust 3.24rem to match your header height */
+    margin-top: 3.24rem; /* Should match your header height */
     background-color: var(--bg-secondary);
     color: var(--text-primary);
     transition: all 0.3s ease;
-    margin-top: 4rem;
     width: 100%;
     box-sizing: border-box;
+    position: relative;
+    overflow: hidden;
+}
+
+.mainContainer {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
 }
 
 .mainContent {
     flex: 1;
-    /* margin-left: 250px; */
-    padding: 5rem 2rem 4rem;
+    /* padding: 2rem; */
     display: flex;
     flex-direction: column;
     align-items: center;
     background-color: var(--bg-secondary);
     color: var(--text-primary);
     transition: all 0.3s ease;
+    overflow-y: auto;
+    position: relative;
+    height: 100%;
+}
+
+.mainContent::-webkit-scrollbar {
+    width: 8px;
+}
+
+.mainContent::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.mainContent::-webkit-scrollbar-thumb {
+    background-color: var(--text-secondary);
+    border-radius: 4px;
+    opacity: 0.5;
+}
+
+.mainContent::-webkit-scrollbar-thumb:hover {
+    background-color: var(--text-primary);
 }
 
 .title {
