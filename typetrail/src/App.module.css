@@ -1,13 +1,20 @@
 .wrapper {
     display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
     min-height: 100vh;
-    text-align: center;
     background-color: #f0f9ff;
-    padding: 1rem;
     transition: background-color 0.3s, color 0.3s;
+    margin-top: 4rem; /* Add space for fixed header */
+    width: 100%;
+    overflow-x: hidden;
+}
+
+.mainContent {
+    flex: 1;
+    margin-left: 250px;
+    padding: 5rem 2rem 4rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .title {
