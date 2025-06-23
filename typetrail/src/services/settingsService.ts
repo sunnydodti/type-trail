@@ -76,6 +76,35 @@ export const DEFAULT_SETTINGS: AppSettings = {
       },
     },
   },
+  storyMode: {
+    visibleLines: 3,
+    caseSensitive: false,
+    showFileName: true,
+    autoScroll: true,
+    showStats: true,
+    keyBindings: {
+      nextFile: {
+        key: 'ArrowRight',
+        alt: true,
+        description: 'Next file',
+      },
+      prevFile: {
+        key: 'ArrowLeft',
+        alt: true,
+        description: 'Previous file',
+      },
+      openFile: {
+        key: 'o',
+        shift: true,
+        description: 'Open file',
+      },
+      pasteText: {
+        key: 'v',
+        shift: true,
+        description: 'Paste text',
+      },
+    },
+  },
 };
 
 class SettingsService {
@@ -122,6 +151,7 @@ class SettingsService {
       global: { ...DEFAULT_SETTINGS.global, ...saved.global },
       wordMode: { ...DEFAULT_SETTINGS.wordMode, ...saved.wordMode },
       sentenceMode: { ...DEFAULT_SETTINGS.sentenceMode, ...saved.sentenceMode },
+      storyMode: { ...DEFAULT_SETTINGS.storyMode, ...saved.storyMode },
     };
   }
 

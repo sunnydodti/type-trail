@@ -33,6 +33,20 @@ export type SentenceModeSettings = {
   };
 };
 
+export type StoryModeSettings = {
+  visibleLines: number;
+  caseSensitive: boolean;
+  showFileName: boolean;
+  autoScroll: boolean;
+  showStats: boolean;
+  keyBindings: {
+    nextFile: KeyBinding;
+    prevFile: KeyBinding;
+    openFile: KeyBinding;
+    pasteText: KeyBinding;
+  };
+};
+
 export type GlobalSettings = {
   theme: 'light' | 'dark';
   soundEnabled: boolean;
@@ -51,4 +65,5 @@ export type AppSettings = {
   global: GlobalSettings;
   wordMode: WordModeSettings;
   sentenceMode: SentenceModeSettings;
+  storyMode: StoryModeSettings;
 };

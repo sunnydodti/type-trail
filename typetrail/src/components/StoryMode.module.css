@@ -1,0 +1,244 @@
+.storyContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.controlsContainer {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background: var(--surface);
+  border-radius: var(--border-radius);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  flex-wrap: wrap;
+}
+
+.storyViewport {
+  position: relative;
+  flex-grow: 1;
+  background: var(--surface);
+  border-radius: var(--border-radius);
+  padding: 2rem;
+  font-family: var(--font-mono);
+  overflow-y: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.storyText {
+  font-size: 1.2rem;
+  line-height: 1.8;
+  max-width: 80ch;
+  margin: 0 auto;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 2rem;
+  font-size: 1.2rem;
+}
+
+.storyLine {
+  display: block;
+  position: relative;
+  height: 1.8em;
+  line-height: 1.8;
+  white-space: pre;
+  font-size: 1.2rem;
+  font-family: var(--font-mono);
+  width: 100%;
+  overflow: hidden;
+}
+
+.textLine {
+  display: inline;
+  position: relative;
+}
+
+.storyText .typed {
+  color: var(--text);
+}
+
+.storyText .typed.correct {
+  color: #4caf50 !important; /* Explicit green color */
+}
+
+.storyText .typed.incorrect {
+  color: #f44336 !important; /* Explicit red color */
+}
+
+.storyText .untyped {
+  color: var(--text);
+}
+
+.storyText .currentChar {
+  color: var(--text);
+  border-radius: 2px;
+}
+
+.storyText .cursor {
+  background: var(--text);
+}
+
+.cursor {
+  position: absolute;
+  display: block;
+  width: 0.6em;
+  height: 0.1em;
+  background: var(--text);
+  bottom: 0;
+  animation: blink 1s step-end infinite;
+  transition: transform 0.1s ease;
+}
+
+@keyframes blink {
+  50% { opacity: 0; }
+}
+
+.fileName {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--surface);
+  padding: 1rem;
+  margin: -2rem -2rem 1rem -2rem;
+  border-bottom: 1px solid var(--border);
+  font-weight: bold;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.progressStats {
+  font-size: 0.9rem;
+  opacity: 0.8;
+  font-weight: normal;
+}
+
+.character {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  color: var(--text);
+  padding: 0 1px;
+  border-radius: 2px;
+  transition: color 0.2s, background-color 0.2s;
+  min-width: 0.6em;
+  font-family: 'Courier New', monospace;
+}
+
+.cursor {
+  background: var(--highlight-background);
+}
+
+.cursorIndicator {
+  position: absolute;
+  left: 100%;
+  top: 0;
+  height: 100%;
+  width: 2px;
+  background: var(--accent-color);
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+  0% { opacity: 1; }
+  50% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+.character.correct {
+  color: var(--success-color);
+  background-color: color-mix(in srgb, var(--success) 15%, transparent);
+}
+
+.character.incorrect {
+  color: var(--error-color);
+  background-color: color-mix(in srgb, var(--error) 15%, transparent);
+  text-decoration: underline wavy var(--error-color);
+}
+
+.inputContainer {
+  flex-shrink: 0;
+  position: relative;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.shortcuts {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.shortcut {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.shortcut kbd {
+  background: var(--surface-hover);
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--border-radius);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  border: 1px solid var(--border);
+  box-shadow: 0 1px 0 var(--border);
+}
+
+.fileItem:hover {
+  background: var(--surface-hover);
+}
+
+.fileItem.selected {
+  background: var(--surface-selected);
+}
+
+.shortcuts {
+  position: absolute;
+  bottom: 1rem;
+  right: 1rem;
+  display: flex;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.shortcut {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.shortcutKey {
+  padding: 0.25rem 0.5rem;
+  background: var(--surface-hover);
+  border-radius: var(--border-radius);
+  font-family: var(--font-mono);
+}
+
+.fadedText {
+  color: var(--text-muted);
+  opacity: 0.3;
+  font-family: 'Courier New', monospace;
+  white-space: pre;
+  transition: opacity 0.2s;
+}
