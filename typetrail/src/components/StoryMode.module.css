@@ -87,11 +87,14 @@
 
 .storyText .currentChar {
   color: var(--text);
-  border-radius: 2px;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-decoration-color: var(--text);
 }
 
 .storyText .cursor {
   background: var(--text);
+  opacity: 0.8;
 }
 
 .cursor {
