@@ -52,28 +52,29 @@ export default function StoryMode() {
       setTypedChars([]);
       resetProgress(files[newIndex].name);
     }
-  }, [currentFileIndex, files, resetProgress]);
-
-  const compareChars = useCallback((typed: string, expected: string): boolean => {
-    if (typed === expected) return true;
-    if (typed === ' ' && expected === '\u00A0') return true; // non-breaking space
-    if (typed === '\n' && (expected === '\r' || expected === '\r\n')) return true;
-    return false;
-  }, []);
-
+  }, [currentFileIndex, files, resetProgress]);  const compareChars = (typed: string, expected: string): boolean => {
+    return typed === expected;
+  };
   // Process content into lines of exactly CHARS_PER_LINE characters
   const normalizeContent = useCallback((content: string): string[] => {
-    const words = content.replace(/\s+/g, ' ').trim().split(' ');
+    // Clean up all whitespace: trim ends and normalize spaces between words
+    const cleanContent = content
+      .replace(/\s+/g, ' ')  // Replace all whitespace sequences with a single space
+      .trim();               // Remove leading/trailing whitespace
+
+    const words = cleanContent.split(' ').filter(word => word.length > 0);
     const lines: string[] = [];
     let currentLine = '';
 
     for (const word of words) {
-      if (currentLine.length + word.length + 1 > CHARS_PER_LINE) {
+      // Check if adding this word would exceed line length
+      const newLength = currentLine.length + word.length + (currentLine.length > 0 ? 1 : 0);
+      if (newLength > CHARS_PER_LINE) {
         // Pad the current line to exactly CHARS_PER_LINE characters
         lines.push(currentLine.padEnd(CHARS_PER_LINE));
-        currentLine = word + ' ';
+        currentLine = word;
       } else {
-        currentLine += word + ' ';
+        currentLine += (currentLine.length > 0 ? ' ' : '') + word;
       }
     }
 
@@ -155,10 +156,20 @@ export default function StoryMode() {
 
   // Handle keyboard events
   const handleKeyPress = useCallback((e: KeyboardEvent) => {
-    if (!currentFile || !parsedContent) return;
+    if (!currentFile || !normalizedLines.length) return;
 
-    const expectedChar = parsedContent[progress.currentPosition];
+    // Calculate current line and position within that line
+    const lineIndex = Math.floor(progress.currentPosition / CHARS_PER_LINE);
+    const linePosition = progress.currentPosition % CHARS_PER_LINE;
+    const currentLine = normalizedLines[lineIndex];
+    
+    if (!currentLine) return;
+    const expectedChar = currentLine[linePosition];
     if (!expectedChar) return;
+
+    // Debug output
+    console.log(`Line ${lineIndex}, Pos ${linePosition}, Expected: '${expectedChar}', Typed: '${e.key}'`);
+    console.log(`Current line: "${currentLine}"`);
 
     // Handle backspace
     if (e.key === 'Backspace') {
@@ -181,8 +192,8 @@ export default function StoryMode() {
     if (e.key.length !== 1 || e.ctrlKey || e.altKey || e.metaKey) return;
     if (e.key === ' ') e.preventDefault(); // Prevent page scrolling on space
 
-    const isCorrect = compareChars(e.key, expectedChar);
-
+    const isCorrect = e.key === expectedChar;
+    
     if (!progress.startTime) {
       setProgress(prev => ({ ...prev, startTime: Date.now() }));
     }
@@ -195,7 +206,7 @@ export default function StoryMode() {
       totalChars: prev.totalChars + 1,
       errors: prev.errors + (isCorrect ? 0 : 1)
     }));
-  }, [currentFile, parsedContent, progress.currentPosition, progress.startTime, compareChars, typedChars]);
+  }, [currentFile, normalizedLines, progress.currentPosition, progress.startTime, typedChars]);
 
   // Set up keyboard event listeners
   useEffect(() => {
