@@ -6,9 +6,14 @@
       "type": "chrome",
       "request": "launch",
       "url": "http://localhost:5173",
-      "webRoot": "${workspaceFolder}/src",
+      "webRoot": "${workspaceFolder}/typetrail",
+      "sourceMapPathOverrides": {
+        "/*": "${webRoot}/*"
+      },
       "breakOnLoad": true,
-      "sourceMaps": true
+      "sourceMaps": true,
+      "timeout": 30000,
+      "preLaunchTask": "start-dev-server"
     }
   ]
 }

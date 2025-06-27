@@ -1,33 +1,82 @@
 .storyContainer {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
-  padding: 1.5rem;
   width: 100%;
   height: 100%;
-  overflow: hidden;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  border-radius: 8px;
+  background: var(--bg-primary);
+  border-radius: var(--border-radius);
+}
+
+.statsBar {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem 1.5rem;
+  background: var(--surface-darker);
+  border-radius: var(--border-radius);
+  font-size: 0.9rem;
+  color: var(--text-on-dark);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.stat {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  color: var(--text-muted);
+}
+
+.statValue {
+  font-family: var(--font-mono);
+  color: var(--text-on-dark);
+  font-weight: 500;
 }
 
 .controlsContainer {
   display: flex;
   gap: 1rem;
   align-items: center;
-  padding: 0.75rem 1rem;
-  background: var(--surface);
+  padding: 1rem;
+  background: var(--surface-darker);
   border-radius: var(--border-radius);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.navButton {
+  padding: 0.5rem 1rem;
+  border-radius: var(--border-radius);
+  background: var(--primary);
+  color: var(--text-on-primary);
+  font-weight: 500;
+  transition: opacity 0.2s;
+}
+
+.navButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .storyViewport {
   position: relative;
   flex-grow: 1;
-  background: var(--surface);
-  border-radius: var(--border-radius);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid var(--border-color);
   padding: 2rem;
   font-family: var(--font-mono);
-  overflow-y: hidden;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  min-height: 300px;
+  color: var(--text-on-dark);
 }
 
 .storyText {
@@ -69,16 +118,33 @@
   position: relative;
 }
 
+.space {
+  position: relative;
+  width: 1ch;
+  display: inline-block;
+}
+
+.space::after {
+  content: '␣';
+  position: absolute;
+  left: 0;
+  color: var(--text-muted);
+  opacity: 0.5;
+  pointer-events: none;
+}
+
 .storyText .typed {
   color: var(--text);
 }
 
 .storyText .typed.correct {
-  color: #4caf50 !important; /* Explicit green color */
+  color: #4caf50 !important;
+  /* Explicit green color */
 }
 
 .storyText .typed.incorrect {
-  color: #f44336 !important; /* Explicit red color */
+  color: #f44336 !important;
+  /* Explicit red color */
 }
 
 .storyText .untyped {
@@ -109,7 +175,9 @@
 }
 
 @keyframes blink {
-  50% { opacity: 0; }
+  50% {
+    opacity: 0;
+  }
 }
 
 .fileName {
@@ -161,9 +229,17 @@
 }
 
 @keyframes blink {
-  0% { opacity: 1; }
-  50% { opacity: 0; }
-  100% { opacity: 1; }
+  0% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
 }
 
 .character.correct {
@@ -244,4 +320,69 @@
   font-family: 'Courier New', monospace;
   white-space: pre;
   transition: opacity 0.2s;
+}
+
+.dropZone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: 3rem;
+  border: 2px dashed var(--text-muted);
+  border-radius: var(--border-radius);
+  background: var(--surface-darker);
+  width: 100%;
+  height: 100%;
+  min-height: 300px;
+}
+
+.fileInput {
+  display: none;
+}
+
+.fileInputLabel {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  background: var(--primary);
+  color: var(--text-on-primary);
+  border-radius: var(--border-radius);
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.fileInputLabel:hover {
+  opacity: 0.9;
+}
+
+.dropText {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+/* Make buttons match Word Mode style */
+.controlsContainer button,
+.dropZone button {
+  padding: 0.75rem 1.5rem;
+  background: var(--primary);
+  color: var(--text-on-primary);
+  border: none;
+  border-radius: var(--border-radius);
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.controlsContainer button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.controlsContainer button:not(:disabled):hover,
+.dropZone button:hover {
+  opacity: 0.9;
 }

@@ -1,80 +1,67 @@
-export function parseContent(content: string, type: 'txt' | 'html' | 'json'): string {
-  let parsed = '';
+import type { StoryFile } from '../types/story';
+type ContentType = StoryFile['type'];
 
+// Keep track of the selected HTML tag for text extraction
+let selectedHtmlTag: string = 'main';
+
+export const setSelectedHtmlTag = (tag: string) => {
+  selectedHtmlTag = tag;
+};
+
+export const getSelectedHtmlTag = () => {
+  return selectedHtmlTag;
+};
+
+const cleanupContent = (text: string): string => {
+  return text
+    // First normalize all newlines
+    .replace(/\r\n/g, '\n')
+    // Remove duplicate chapter titles
+    .replace(/(Chapter \d+)\s*[-:]\s*\1:?/g, '$1:')
+    // Remove redundant chapter prefix from title
+    .replace(/(Chapter \d+:)\s*Chapter \d+:/g, '$1')
+    // Clean up extra spaces around punctuation
+    .replace(/\s+([.,!?])/g, '$1')
+    // Normalize spaces
+    .replace(/[ \t]+/g, ' ')
+    // Remove multiple consecutive newlines
+    .replace(/\n\s*\n/g, '\n')
+    // Remove spaces at start of lines
+    .replace(/\n\s+/g, '\n')
+    // Remove spaces at end of lines
+    .replace(/\s+\n/g, '\n')
+    // Final trim
+    .trim();
+};
+
+const normalizeQuotes = (text: string): string => {
+  return text
+    .replace(/[''"]/g, "'")  // Replace all fancy single quotes with simple quote
+    .replace(/[""]/g, '"');  // Replace all fancy double quotes with simple quote
+};
+
+export const parseContent = (content: string, type: ContentType): string => {
   switch (type) {
     case 'html': {
-      // Extract body content first
-      const bodyMatch = content.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
-      let bodyContent = bodyMatch ? bodyMatch[1] : content;
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(content, 'text/html');
+      const mainContent = doc.querySelector(selectedHtmlTag);
+      if (!mainContent) return '';
       
-      // Remove scripts and styles first
-      bodyContent = bodyContent
-        .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
-        .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '');
-
-      // Handle common HTML entities
-      parsed = bodyContent
-        .replace(/&nbsp;/g, ' ')
-        .replace(/&amp;/g, '&')
-        .replace(/&lt;/g, '<')
-        .replace(/&gt;/g, '>')
-        .replace(/&quot;/g, '"')
-        .replace(/&#39;/g, "'")
-        .replace(/&ldquo;/g, '"')
-        .replace(/&rdquo;/g, '"')
-        .replace(/&lsquo;/g, "'")
-        .replace(/&rsquo;/g, "'")
-        .replace(/&mdash;/g, '—')
-        .replace(/&ndash;/g, '–');
-
-      // Then handle HTML structure
-      parsed = parsed
-        .replace(/<br\s*\/?>/gi, '\n')  // Replace <br> with newline
-        .replace(/<p[^>]*>/gi, '')      // Remove <p> opening tags
-        .replace(/<\/p>/gi, '\n')       // Replace </p> with newline
-        .replace(/<div[^>]*>/gi, '')    // Remove <div> opening tags
-        .replace(/<\/div>/gi, '\n')     // Replace </div> with newline
-        .replace(/<[^>]+>/g, '')        // Remove all other tags
-        .replace(/\r\n/g, '\n')         // Normalize line endings
-        .replace(/\r/g, '\n')           // Normalize line endings
-        .replace(/\t/g, '    ')         // Replace tabs with spaces
-        .replace(/\n\s*\n/g, '\n')      // Collapse multiple empty lines
-        .replace(/^\s+|\s+$/gm, '')     // Trim each line
-        .trim();
-      break;
+      // Get text content and normalize it
+      const textContent = mainContent.textContent || '';
+      return cleanupContent(normalizeQuotes(textContent));
     }
-
-    case 'json': {
+    case 'txt':
+      return cleanupContent(normalizeQuotes(content));
+    case 'json':
       try {
-        // Try to extract text content from JSON
-        const obj = JSON.parse(content);
-        if (typeof obj === 'string') {
-          parsed = obj;
-        } else if (Array.isArray(obj) && obj.every(item => typeof item === 'string')) {
-          parsed = obj.join('\n');
-        } else {
-          parsed = JSON.stringify(obj, null, 2);
-        }
+        const parsed = JSON.parse(content);
+        return cleanupContent(normalizeQuotes(typeof parsed === 'string' ? parsed : JSON.stringify(parsed)));
       } catch {
-        parsed = content;
+        return cleanupContent(normalizeQuotes(content));
       }
-      break;
-    }    case 'txt':
-    default: {
-      // Just normalize line endings and tabs
-      parsed = content
-        .replace(/\r\n/g, '\n')
-        .replace(/\r/g, '\n')
-        .replace(/\t/g, '    ');
-      break;
-    }
+    default:
+      return cleanupContent(normalizeQuotes(content));
   }
-
-  // Final cleanup to ensure consistent text for typing
-  return parsed
-    .replace(/\s+/g, ' ')           // Replace multiple spaces with single space
-    .replace(/\n\s*/g, '\n')        // Remove spaces after newlines
-    .replace(/\s*\n/g, '\n')        // Remove spaces before newlines
-    .replace(/\n{3,}/g, '\n\n')     // Limit consecutive newlines to 2
-    .trim();
-}
+};

@@ -1,8 +1,9 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import type { StoryFile, StoryProgress } from '../types/story';
 import { useSettings } from '../hooks/useSettings';
 import { parseContent } from '../utils/contentParser';
 import { Button } from './Button';
+import { TagSelector } from './TagSelector';
 import styles from './StoryMode.module.css';
 
 const CHARS_PER_LINE = 50;
@@ -51,38 +52,42 @@ export default function StoryMode() {
       setCurrentFileIndex(newIndex);
       setTypedChars([]);
       resetProgress(files[newIndex].name);
-    }
-  }, [currentFileIndex, files, resetProgress]);  const compareChars = (typed: string, expected: string): boolean => {
+    }  }, [currentFileIndex, files, resetProgress]);
+
+  const compareChars = (typed: string, expected: string): boolean => {
     return typed === expected;
   };
+
   // Process content into lines of exactly CHARS_PER_LINE characters
   const normalizeContent = useCallback((content: string): string[] => {
-    // Clean up all whitespace: trim ends and normalize spaces between words
-    const cleanContent = content
-      .replace(/\s+/g, ' ')  // Replace all whitespace sequences with a single space
-      .trim();               // Remove leading/trailing whitespace
-
-    const words = cleanContent.split(' ').filter(word => word.length > 0);
-    const lines: string[] = [];
-    let currentLine = '';
-
-    for (const word of words) {
-      // Check if adding this word would exceed line length
-      const newLength = currentLine.length + word.length + (currentLine.length > 0 ? 1 : 0);
-      if (newLength > CHARS_PER_LINE) {
-        // Pad the current line to exactly CHARS_PER_LINE characters
-        lines.push(currentLine.padEnd(CHARS_PER_LINE));
-        currentLine = word;
-      } else {
-        currentLine += (currentLine.length > 0 ? ' ' : '') + word;
+    // Split content into lines first
+    const textLines = content.split('\n');
+    const result: string[] = [];
+    
+    // Process each line separately to maintain line breaks
+    for (const line of textLines) {
+      if (!line.trim()) continue; // Skip empty lines
+      
+      const words = line.trim().split(' ').filter(w => w.length > 0);
+      let currentLine = '';
+      
+      for (const word of words) {
+        const newLength = currentLine.length + word.length + (currentLine.length > 0 ? 1 : 0);
+        
+        if (newLength > CHARS_PER_LINE) {
+          result.push(currentLine.padEnd(CHARS_PER_LINE));
+          currentLine = word;
+        } else {
+          currentLine += (currentLine.length > 0 ? ' ' : '') + word;
+        }
+      }
+      
+      if (currentLine.length > 0) {
+        result.push(currentLine.padEnd(CHARS_PER_LINE));
       }
     }
-
-    if (currentLine.length > 0) {
-      lines.push(currentLine.padEnd(CHARS_PER_LINE));
-    }
-
-    return lines;
+    
+    return result;
   }, []);
 
   // Current file and content
@@ -127,7 +132,8 @@ export default function StoryMode() {
               const isTyped = charIndex < relativePos;
               const isCurrent = charIndex === relativePos;
               const typedCharInfo = typedChars[lineStartPos + charIndex];
-              
+                // Special handling for spaces
+              const isSpace = char === ' ';
               return (
                 <span 
                   key={lineStartPos + charIndex}
@@ -136,9 +142,10 @@ export default function StoryMode() {
                     ${isTyped && typedCharInfo?.correct ? styles.correct : ''}
                     ${isTyped && !typedCharInfo?.correct ? styles.incorrect : ''}
                     ${isCurrent ? styles.currentChar : ''}
+                    ${isSpace ? styles.space : ''}
                   `}
                 >
-                  {char}
+                  {isSpace ? ' ' : char}
                 </span>
               );
             })}
@@ -258,59 +265,134 @@ export default function StoryMode() {
     });
   }, [resetProgress]);
 
+  // File selection handler
+  const handleFileSelect = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFiles = Array.from(e.target.files || []);
+    const fileContents: StoryFile[] = await Promise.all(
+      selectedFiles.map(async (file) => ({
+        name: file.name,
+        content: await file.text(),
+        type: file.name.endsWith('.html') ? 'html' : 'txt'
+      }))
+    );
+    setFiles(fileContents);
+    if (fileContents.length > 0) {
+      resetProgress(fileContents[0].name);
+    }
+  }, [resetProgress]);
+
+  // Paste text handler
+  const handlePasteText = useCallback(async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+      const pastedFile: StoryFile = {
+        name: 'Pasted Text',
+        content: text,
+        type: 'txt'
+      };
+      setFiles([pastedFile]);
+      resetProgress(pastedFile.name);
+    } catch (error) {
+      console.error('Failed to read clipboard:', error);
+    }
+  }, [resetProgress]);
+
+  // Calculate stats
+  const wpm = useMemo(() => {
+    if (!progress.startTime || !progress.totalChars) return 0;
+    const minutes = (Date.now() - progress.startTime) / 60000;
+    return Math.round((progress.correctChars / 5) / minutes);
+  }, [progress.startTime, progress.totalChars, progress.correctChars]);
+
+  const accuracy = useMemo(() => {
+    if (!progress.totalChars) return 0;
+    return Math.round((progress.correctChars / progress.totalChars) * 100);
+  }, [progress.totalChars, progress.correctChars]);
+
   return (
     <div className={styles.storyContainer}>
-      <div className={styles.controlsContainer}>
-        <Button onClick={() => moveToFile(-1)} disabled={currentFileIndex === 0}>
-          Previous File
-        </Button>
-        <Button onClick={() => moveToFile(1)} disabled={currentFileIndex === files.length - 1}>
-          Next File
-        </Button>
-      </div>
-
-      <div 
-        className={styles.storyViewport}
-        onDragOver={e => e.preventDefault()}
-        onDrop={handleDrop}
-      >
-        {currentFile && showFileName && (
-          <div className={styles.fileName}>
-            {currentFile.name}
-          </div>
-        )}
-        
-        <div className={styles.storyText}>
-          {parsedContent ? renderLines() : (
-            <div className={styles.placeholder}>
-              Drop a text file here to start typing
-            </div>
-          )}
+      {/* Stats Bar */}
+      <div className={styles.statsBar}>
+        <div className={styles.stat}>
+          <span className={styles.statLabel}>Total:</span>
+          <span className={styles.statValue}>{progress.totalChars}</span>
         </div>
-      </div>
-
-      <div className={styles.progressStats}>
-        <div className={styles.statGroup}>
-          <span className={styles.statLabel}>WPM:</span>
-          <span className={styles.statValue}>
-            {progress.startTime ? Math.round(
-              (progress.correctChars / 5) / 
-              ((Date.now() - progress.startTime) / 60000)
-            ) : 0}
-          </span>
+        <div className={styles.stat}>
+          <span className={styles.statLabel}>Acc:</span>
+          <span className={styles.statValue}>{accuracy}%</span>
         </div>
-        <div className={styles.statGroup}>
-          <span className={styles.statLabel}>Accuracy:</span>
-          <span className={styles.statValue}>
-            {progress.totalChars > 0 ?
-              Math.round((progress.correctChars / progress.totalChars) * 100) : 
-              100}%
-          </span>
+        <div className={styles.stat}>
+          <span className={styles.statLabel}>✓:</span>
+          <span className={styles.statValue}>{progress.correctChars}</span>
         </div>
-        <div className={styles.statGroup}>
-          <span className={styles.statLabel}>Errors:</span>
+        <div className={styles.stat}>
+          <span className={styles.statLabel}>✗:</span>
           <span className={styles.statValue}>{progress.errors}</span>
         </div>
+        <div className={styles.stat}>
+          <span className={styles.statLabel}>WPM:</span>
+          <span className={styles.statValue}>{wpm}</span>
+        </div>
+      </div>
+
+      {/* Navigation Controls */}
+      {files.length > 0 && (
+        <div className={styles.controlsContainer}>
+          <Button
+            onClick={() => moveToFile(-1)}
+            disabled={currentFileIndex <= 0}
+          >
+            Previous File
+          </Button>
+          <Button
+            onClick={() => moveToFile(1)}
+            disabled={currentFileIndex >= files.length - 1}
+          >
+            Next File
+          </Button>
+          <TagSelector />
+        </div>
+      )}
+
+      {/* Story Viewport */}
+      <div className={styles.storyViewport}>
+        {files.length === 0 ? (
+          <div className={styles.dropZone}>
+            <input
+              type="file"
+              multiple
+              accept=".txt,.html"
+              onChange={handleFileSelect}
+              className={styles.fileInput}
+              id="file-input"
+            />
+            <label htmlFor="file-input" className={styles.fileInputLabel}>
+              Select Files
+            </label>
+            <Button onClick={handlePasteText}>
+              Paste Text
+            </Button>
+            <div className={styles.dropText}>
+              or drop text files here to start typing
+            </div>
+          </div>
+        ) : (
+          <>
+            {currentFile && showFileName && (
+              <div className={styles.fileName}>
+                {currentFile.name}
+              </div>
+            )}
+            
+            <div className={styles.storyText}>
+              {parsedContent ? renderLines() : (
+                <div className={styles.placeholder}>
+                  Drop a text file here to start typing
+                </div>
+              )}
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
