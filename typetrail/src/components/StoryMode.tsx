@@ -314,23 +314,23 @@ export default function StoryMode() {
       {/* Stats Bar */}
       <div className={styles.statsBar}>
         <div className={styles.stat}>
-          <span className={styles.statLabel}>Total:</span>
+          <span className={styles.statLabel}>Total: </span>
           <span className={styles.statValue}>{progress.totalChars}</span>
         </div>
         <div className={styles.stat}>
-          <span className={styles.statLabel}>Acc:</span>
+          <span className={styles.statLabel}>Acc: </span>
           <span className={styles.statValue}>{accuracy}%</span>
         </div>
         <div className={styles.stat}>
-          <span className={styles.statLabel}>✓:</span>
+          <span className={styles.statLabel}>✓: </span>
           <span className={styles.statValue}>{progress.correctChars}</span>
         </div>
         <div className={styles.stat}>
-          <span className={styles.statLabel}>✗:</span>
+          <span className={styles.statLabel}>✗: </span>
           <span className={styles.statValue}>{progress.errors}</span>
         </div>
         <div className={styles.stat}>
-          <span className={styles.statLabel}>WPM:</span>
+          <span className={styles.statLabel}>WPM: </span>
           <span className={styles.statValue}>{wpm}</span>
         </div>
       </div>
