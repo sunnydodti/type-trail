@@ -84,6 +84,11 @@
   color: var(--text-color);
 }
 
+.storyInputButtons{
+  display: flex;
+  justify-content: space-evenly;
+}
+
 .storyText {
   font-size: 2rem;
   line-height: 1.6;
@@ -145,63 +150,25 @@
   pointer-events: none;
 }
 
-.storyText .typed {
-  color: var(--text-color);
+.correct {
+  color: var(--success-color);
 }
 
-.storyText .typed.correct {
-  color: var(--success);
+.incorrect {
+  color: var(--error-color);
 }
 
-.storyText .typed.incorrect {
-  color: var(--error);
+.untyped {
+  color: var(--text-muted);
+  opacity: 0.6;
 }
 
-.storyLine.current {
+.currentChar {
+  position: relative;
   color: var(--text-color);
   opacity: 1;
-}
-
-.cursor {
-  position: absolute;
-  width: 1ch;
-  height: 4px;
-  background-color: var(--accent-color);
+  border-bottom: 2px solid var(--accent-color);
   animation: blink 1s step-end infinite;
-  bottom: -2px;
-}
-
-@keyframes blink {
-  50% {
-    opacity: 0;
-  }
-}
-
-.storyText .untyped {
-  color: var(--text);
-}
-
-.storyText .currentChar {
-  color: var(--text);
-  text-decoration: underline;
-  text-decoration-thickness: 2px;
-  text-decoration-color: var(--text);
-}
-
-.storyText .cursor {
-  background: var(--text);
-  opacity: 0.8;
-}
-
-.cursor {
-  position: absolute;
-  display: block;
-  width: 0.6em;
-  height: 0.1em;
-  background: var(--text);
-  bottom: 0;
-  animation: blink 1s step-end infinite;
-  transition: transform 0.1s ease;
 }
 
 @keyframes blink {
@@ -274,12 +241,12 @@
 
 .character.correct {
   color: var(--success-color);
-  background-color: color-mix(in srgb, var(--success) 15%, transparent);
+  background-color: color-mix(in srgb, var(--success-color) 15%, transparent);
 }
 
 .character.incorrect {
   color: var(--error-color);
-  background-color: color-mix(in srgb, var(--error) 15%, transparent);
+  background-color: color-mix(in srgb, var(--error-color) 15%, transparent);
   text-decoration: underline wavy var(--error-color);
 }
 
@@ -368,6 +335,7 @@
   margin-bottom: 16px;
   border: 2px dashed var(--border-color);
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;

@@ -52,7 +52,8 @@ export default function StoryMode() {
       setCurrentFileIndex(newIndex);
       setTypedChars([]);
       resetProgress(files[newIndex].name);
-    }  }, [currentFileIndex, files, resetProgress]);
+    }
+  }, [currentFileIndex, files, resetProgress]);
 
   const compareChars = (typed: string, expected: string): boolean => {
     return typed === expected;
@@ -63,17 +64,17 @@ export default function StoryMode() {
     // Split content into lines first
     const textLines = content.split('\n');
     const result: string[] = [];
-    
+
     // Process each line separately to maintain line breaks
     for (const line of textLines) {
       if (!line.trim()) continue; // Skip empty lines
-      
+
       const words = line.trim().split(' ').filter(w => w.length > 0);
       let currentLine = '';
-      
+
       for (const word of words) {
         const newLength = currentLine.length + word.length + (currentLine.length > 0 ? 1 : 0);
-        
+
         if (newLength > CHARS_PER_LINE) {
           result.push(currentLine.padEnd(CHARS_PER_LINE));
           currentLine = word;
@@ -81,12 +82,12 @@ export default function StoryMode() {
           currentLine += (currentLine.length > 0 ? ' ' : '') + word;
         }
       }
-      
+
       if (currentLine.length > 0) {
         result.push(currentLine.padEnd(CHARS_PER_LINE));
       }
     }
-    
+
     return result;
   }, []);
 
@@ -94,13 +95,6 @@ export default function StoryMode() {
   const currentFile = files[currentFileIndex];
   const parsedContent = currentFile ? parseContent(currentFile.content, currentFile.type) : '';
   const normalizedLines = normalizeContent(parsedContent);
-
-  // Calculate cursor position relative to current line
-  const getCursorPosition = useCallback(() => {
-    const charWidth = 0.6; // em units, matching the cursor width in CSS
-    const pos = progress.currentPosition % CHARS_PER_LINE;
-    return `${pos * charWidth}em`;
-  }, [progress.currentPosition]);
 
   // Render visible text with highlighting
   const renderLines = useCallback(() => {
@@ -120,46 +114,41 @@ export default function StoryMode() {
 
     return visibleLines.map((line, i) => {
       const lineStartPos = (startLine + i) * CHARS_PER_LINE;
-      const lineEndPos = lineStartPos + CHARS_PER_LINE;
-      const isCurrentLine = progress.currentPosition >= lineStartPos && progress.currentPosition < lineEndPos;      // Split line into typed and untyped parts
       const linePos = progress.currentPosition - lineStartPos;
       const relativePos = linePos >= 0 && linePos < CHARS_PER_LINE ? linePos : -1;
 
       return (
         <div key={startLine + i} className={styles.storyLine}>
           <span className={styles.textLine}>
-            {[...line].map((char, charIndex) => {
-              const isTyped = charIndex < relativePos;
+            {[...line].map((char, charIndex) => {              const isTyped = charIndex < relativePos;
               const isCurrent = charIndex === relativePos;
               const typedCharInfo = typedChars[lineStartPos + charIndex];
-                // Special handling for spaces
+              // Special handling for spaces
               const isSpace = char === ' ';
               return (
-                <span 
+                <span
                   key={lineStartPos + charIndex}
                   className={`
-                    ${isTyped ? styles.typed : styles.untyped}
+                    ${isSpace ? styles.space : ''}
+                    ${isCurrent ? styles.currentChar : ''}
                     ${isTyped && typedCharInfo?.correct ? styles.correct : ''}
                     ${isTyped && !typedCharInfo?.correct ? styles.incorrect : ''}
-                    ${isCurrent ? styles.currentChar : ''}
-                    ${isSpace ? styles.space : ''}
-                  `}
+                    ${!isTyped && !isCurrent ? styles.untyped : ''}`}
+                  style={{ 
+                    letterSpacing: '0.05rem',
+                    display: 'inline-block'
+                  }}
                 >
                   {isSpace ? ' ' : char}
                 </span>
               );
             })}
-            {isCurrentLine && (
-              <span 
-                className={styles.cursor}
-                style={{ transform: `translateX(${getCursorPosition()})` }}
-              />
-            )}
+            
           </span>
         </div>
       );
     });
-  }, [parsedContent, progress.currentPosition, normalizedLines, typedChars, getCursorPosition]);
+  }, [parsedContent, progress.currentPosition, normalizedLines, typedChars]);
 
   // Handle keyboard events
   const handleKeyPress = useCallback((e: KeyboardEvent) => {
@@ -169,7 +158,7 @@ export default function StoryMode() {
     const lineIndex = Math.floor(progress.currentPosition / CHARS_PER_LINE);
     const linePosition = progress.currentPosition % CHARS_PER_LINE;
     const currentLine = normalizedLines[lineIndex];
-    
+
     if (!currentLine) return;
     const expectedChar = currentLine[linePosition];
     if (!expectedChar) return;
@@ -200,7 +189,7 @@ export default function StoryMode() {
     if (e.key === ' ') e.preventDefault(); // Prevent page scrolling on space
 
     const isCorrect = e.key === expectedChar;
-    
+
     if (!progress.startTime) {
       setProgress(prev => ({ ...prev, startTime: Date.now() }));
     }
@@ -267,10 +256,10 @@ export default function StoryMode() {
 
   // File selection handler
   const handleFileSelect = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFiles = Array.from(e.target.files || []);
-    const fileContents: StoryFile[] = await Promise.all(
+    const selectedFiles = Array.from(e.target.files || []);    const fileContents: StoryFile[] = await Promise.all(
       selectedFiles.map(async (file) => ({
         name: file.name,
+        path: file.name,
         content: await file.text(),
         type: file.name.endsWith('.html') ? 'html' : 'txt'
       }))
@@ -284,9 +273,9 @@ export default function StoryMode() {
   // Paste text handler
   const handlePasteText = useCallback(async () => {
     try {
-      const text = await navigator.clipboard.readText();
-      const pastedFile: StoryFile = {
+      const text = await navigator.clipboard.readText();      const pastedFile: StoryFile = {
         name: 'Pasted Text',
+        path: 'pasted-text.txt',
         content: text,
         type: 'txt'
       };
@@ -356,22 +345,24 @@ export default function StoryMode() {
 
       {/* Story Viewport */}
       <div className={styles.storyViewport}>
-        {files.length === 0 ? (
-          <div className={styles.dropZone}>
-            <input
-              type="file"
-              multiple
-              accept=".txt,.html"
-              onChange={handleFileSelect}
-              className={styles.fileInput}
-              id="file-input"
-            />
-            <label htmlFor="file-input" className={styles.fileInputLabel}>
-              Select Files
-            </label>
-            <Button onClick={handlePasteText}>
-              Paste Text
-            </Button>
+        {files.length === 0 ? (          <div className={styles.dropZone} onDrop={handleDrop} onDragOver={e => e.preventDefault()}>
+            <div className={styles.storyInputButtons}>
+              <input
+                type="file"
+                multiple
+                accept=".txt,.html"
+                onChange={handleFileSelect}
+                className={styles.fileInput}
+                id="file-input"
+              />
+              <label htmlFor="file-input" className={styles.fileInputLabel}>
+                Select Files
+              </label>
+              <Button onClick={handlePasteText}>
+                Paste Text
+              </Button>
+            </div>
+            <br></br>
             <div className={styles.dropText}>
               or drop text files here to start typing
             </div>
@@ -383,7 +374,7 @@ export default function StoryMode() {
                 {currentFile.name}
               </div>
             )}
-            
+
             <div className={styles.storyText}>
               {parsedContent ? renderLines() : (
                 <div className={styles.placeholder}>
