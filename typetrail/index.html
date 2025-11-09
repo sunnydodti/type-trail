@@ -2,37 +2,9 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" href="/type-trail/favicon.ico" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TypeTrail - Improve Your Typing Skills</title>
-    <style>
-      /* Hide content until theme is applied */
-      html:not([data-theme]) {
-        visibility: hidden;
-      }
-      /* Dark theme defaults */
-      html {
-        background: #1f2937;
-        color: #f3f4f6;
-      }
-    </style>
-    <script>
-      // Immediately set the theme before the page renders
-      (function() {
-        try {
-          const theme = localStorage.getItem('typetrail-theme') || 'dark';
-          document.documentElement.setAttribute('data-theme', theme);
-          // Force a repaint to prevent flash
-          document.documentElement.style.display = 'none';
-          requestAnimationFrame(() => {
-            document.documentElement.style.display = '';
-          });
-        } catch (e) {
-          // If localStorage fails, default to dark theme
-          document.documentElement.setAttribute('data-theme', 'dark');
-        }
-      })();
-    </script>
+    <title>typetrail</title>
   </head>
   <body>
     <div id="root"></div>
