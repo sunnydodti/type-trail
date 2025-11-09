@@ -4,9 +4,8 @@ export type StorySource = 'file' | 'folder' | 'paste';
 
 export interface StoryFile {
   name: string;
-  path: string;
   content: string;
-  type: 'txt' | 'html' | 'json';
+  type?: 'txt' | 'html' | 'json';
 }
 
 export interface StoryModeSettings {
@@ -24,10 +23,9 @@ export interface StoryModeSettings {
 }
 
 export interface StoryProgress {
-  currentFile: string;
-  currentPosition: number;
+  fileIndex: number;
+  charIndex: number;
   correctChars: number;
-  totalChars: number;
-  startTime?: number;
   errors: number;
+  startTime?: number;
 }
