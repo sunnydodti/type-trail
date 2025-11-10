@@ -1,0 +1,15 @@
+.text-character-pending {
+  color: grey
+}
+
+.text-character-correct {
+  color: green
+}
+
+.text-character-incorrect {
+  color: red
+}
+
+.text-character-current {
+  text-decoration: underline;
+}

@@ -1,35 +1,83 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useCallback, useEffect, useState } from "react";
+import TextArea from "./components/TextArea";
+import KeyPressListener from "./components/KeyPressListener/KeyPressListener";
+import { VALID_CHARACTERS } from "./constants/charactersConstants";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [text] = useState<string>("Hello World");
+  const [currentIndex, setcurrentIndex] = useState<number>(0);
+  const [errors, seterrors] = useState<number[]>([]);
+  const textLength = text.length;
 
+  const evaluateKeyPress = useCallback(
+    (key: string) => {
+      console.log("Key pressed in App:", key);
+      console.log("data:", text[currentIndex]);
+      console.log("key:", key);
+
+      // modifiers
+      if (key == "Backspace") {
+        updateDataForBackspacePress();
+        logData();
+        return;
+      }
+
+      if (!VALID_CHARACTERS.includes(key)) {
+        console.log("invald character pressed");
+        return;
+      }
+
+      if (currentIndex == textLength) return;
+
+      if (text[currentIndex] === key) {
+        console.log(true);
+        updateDataForCorrectKeyPress();
+      } else {
+        console.log(false);
+        updateDataForInCorrectKeyPress();
+      }
+      logData();
+    },
+    [text, currentIndex, textLength]
+  );
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      evaluateKeyPress(event.key);
+    };
+    window.addEventListener("keydown", handleKeyPress);
+    return () => {
+      window.removeEventListener("keydown", handleKeyPress);
+    };
+  }, [evaluateKeyPress]);
+
+  function updateDataForCorrectKeyPress() {
+    seterrors((prev) => {
+      const newErrors = prev.filter((i) => i !== currentIndex);
+      return newErrors;
+    });
+    setcurrentIndex((prev) => prev + 1);
+  }
+
+  function updateDataForBackspacePress() {
+    setcurrentIndex((prev) => (prev > 0 ? prev - 1 : 0));
+  }
+
+  function updateDataForInCorrectKeyPress() {
+    seterrors((prev) => [...prev, currentIndex]);
+    setcurrentIndex((prev) => prev + 1);
+  }
+
+  function logData() {
+    console.log("text[currentIndex]", text[currentIndex]);
+    console.log("currentIndex", currentIndex);
+    console.log("errors", errors);
+  }
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <KeyPressListener />
+      <TextArea text={text} currentIndex={currentIndex} errors={errors} />
     </>
-  )
+  );
 }
 
-export default App
+export default App;
